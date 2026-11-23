@@ -16,6 +16,7 @@ body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.75 "Apple SD Goth
 #scene{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border:1px solid var(--line);border-radius:8px;margin:12px 0 0;background:#0d1114}
 #scene[hidden]{display:none}
 
+.eimg{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:8px;margin:0 0 16px}
 #timg{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:8px;margin:0 0 20px}
 button{font:inherit;color:inherit;cursor:pointer}
 button:focus-visible,input:focus-visible{outline:2px solid var(--key);outline-offset:2px}
@@ -141,7 +142,7 @@ table.res td{border-bottom:1px solid var(--line);padding:7px 4px;vertical-align:
 </div>
 
 <div class="ov on" id="title"><div>
-<img id="timg" src="title.webp" alt="" onerror="this.remove()">
+<img id="timg" src="img/title.webp" alt="" onerror="this.remove()">
 <h2>두 번째 봄</h2><p class="sub">SECOND SPRING</p>
 <p>사귄 지 1년, 기념일까지 엿새. 요즘 그녀는 전보다 더 다정하다.<br>“두 번째 봄은 같이 시작하고 싶어.”</p>
 <p class="q">연애 공포 미스터리 · 약 60분 · 감금, 집착, 사망 장면이 나옵니다.</p>
@@ -421,7 +422,7 @@ function endingHTML(n){const g=G();let L=[];
  if(n===3)L=["“왼쪽.”","왼쪽 사람의 손을 잡았어. 따뜻했어. 그 사람이 내 품에 안겼어.","그 순간, 오른쪽 사람이 바닥에서 작게 신음했어. 그제야 알았어. 오른쪽 사람의 손목이 왜 그렇게 가늘었는지.","품 안의 사람이 내 귀에 대고 속삭였어. 등 뒤로, 차가운 게 들어왔어.","어둠이 내려앉았어.","“이제 우리뿐이야, 우우.”"];
  if(n===4)L=["다음 날 아침, 박 씨가 경찰을 불러 07번을 열었어.","비어 있었어. 바닥에 긁힌 자국과 빈 물병 몇 개, 로션 냄새만.","그녀도 사라졌어. 원룸은 하룻밤 사이에 비었고, 전화번호는 없는 번호가 됐어.","반년 뒤, 낯선 도시의 소인이 찍힌 엽서 한 장이 왔어.","‘잘 지내지? 보고 싶어. 💕 — 채원’","글씨가, 오른쪽으로 기울어 있었어."];
  if(n===5)L=["기념일 밤, 우리는 새 집으로 이사했어.","그녀가 내 손을 잡고 현관 비밀번호를 눌렀어. 0928.","새 집은 따뜻해. 그녀는 매일 아침 계란말이를 하고, 나를 우우라고 불러. 이제는 한 박자도 늦지 않아.","두부는 이사 오고 나서 밥을 잘 안 먹어. 가끔 현관에 앉아 아래를 보며 울어.","예전 집 지하에서 나던 소리는, 이제 더 이상 들리지 않는대."];
- return `<p><span class="tag">ENDING ${n} — ${ENDINGS[n-1]}</span></p>${L.map(x=>`<p>${x}</p>`).join("")}<div class="lbl">결산</div>${review()}<div class="row"><button class="btn" data-act="gal">엔딩 도감</button>${g.snap?SNAP:""}<button class="btn" data-act="again">처음부터</button></div>`}
+ return `<p><span class="tag">ENDING ${n} — ${ENDINGS[n-1]}</span></p><img class="eimg" src="img/e${n}.webp" alt="" onerror="this.remove()">${L.map(x=>`<p>${x}</p>`).join("")}<div class="lbl">결산</div>${review()}<div class="row"><button class="btn" data-act="gal">엔딩 도감</button>${g.snap?SNAP:""}<button class="btn" data-act="again">처음부터</button></div>`}
 function endHTML(k){const g=S?G():{};
  if(k===1)return EN("1장 종료",["오늘따라 더 다정했어. 계란말이도, 기념일 얘기도.","그런데 두부는 왜 그랬을까?"],["커플 앱 비밀번호는 왜 몰랐을까?","바닥 아래의 소리는 정말 보일러일까?"],NEXT(2));
  if(k===2)return EN("2장 종료",["우리가 처음 만난 자리를, 너무 설레서 기억이 안 난대.","1년 전 메모의 글씨는 왼쪽으로 기울어 있었어. 오늘 그녀의 서명은 오른쪽으로."],["사람의 글씨가 1년 만에 반대로 기울 수 있을까?"],NEXT(3));
@@ -470,7 +471,7 @@ function goal(){const f=F(),g=G(),c=S.ch;
 function hint(){const g=goal();if(S.hk!==g[0]){S.hk=g[0];S.hl=0}const lv=Math.min(S.hl,2);S.hl=lv+1;S.from=S.log.length;sys("힌트 "+(lv+1)+"/3 — "+g[1][lv]);render()}
 
 /* ---------- 장면 이미지 (이미지가 준비되면 채운다) ---------- */
-const SCENE={};
+const SCENE={r1:"img/r1",r1d:"img/r1d",r2a:"img/r2a",r2b:"img/r2b",r3:"img/r3",r4a:"img/r4a",r5:"img/r5",r6g:"img/r6g",r6o:"img/r6o",r6r:"img/r6r",r6b:"img/r6b",r7:"img/r7",r7i:"img/r7i",r8p:"img/r8p",r8d:"img/r8d",r8:"img/r8d"};
 function sceneImg(){const k=SCENE[S.room],im=$("scene"),bg=$("bg");if(!k){im.hidden=true;bg.style.opacity=0;return}const u=k+".webp";if(im.dataset.k!==k){im.dataset.k=k;im.src=u;bg.style.backgroundImage='url("'+u+'")'}im.hidden=false;bg.style.opacity=1}
 
 /* ---------- 렌더링 ---------- */
