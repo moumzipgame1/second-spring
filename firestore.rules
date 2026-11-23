@@ -1,0 +1,32 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 《온보딩》 누적 섭취 카운터: 읽기는 누구나, 쓰기는 숫자를 1~3만큼 올리는 것만 허용
+    match /stats/drinks {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly(['n'])
+                    && request.resource.data.n is int
+                    && request.resource.data.n >= 1 && request.resource.data.n <= 3;
+      allow update: if request.resource.data.keys().hasOnly(['n'])
+                    && request.resource.data.n is int
+                    && request.resource.data.n > resource.data.n
+                    && request.resource.data.n <= resource.data.n + 3;
+      allow delete: if false;
+    }
+    // 《두 번째 봄》 답장 카운터: 같은 규칙
+    match /stats/replies {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly(['n'])
+                    && request.resource.data.n is int
+                    && request.resource.data.n >= 1 && request.resource.data.n <= 3;
+      allow update: if request.resource.data.keys().hasOnly(['n'])
+                    && request.resource.data.n is int
+                    && request.resource.data.n > resource.data.n
+                    && request.resource.data.n <= resource.data.n + 3;
+      allow delete: if false;
+    }
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>두 번째 봄</title>
+<style>
+:root{--bg:#fbeef1;--fg:#41323a;--mut:#8f7a83;--pan:#fff8f9;--line:#f0d6dd;--acc:#d06a82;--key:#a2577a;--ok:#5f8f78;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body.t2{--bg:#efe6e9;--fg:#33292e;--mut:#857980;--pan:#f8f2f4;--line:#ddd0d5;--acc:#a9677a;--key:#7e5a70;--ok:#5a8476}
+body.t3{--bg:#e3e6ea;--fg:#272b30;--mut:#7a828a;--pan:#f1f3f5;--line:#cfd5db;--acc:#8a6070;--key:#5d6f86;--ok:#4f7d7a}
+body.t4{--bg:#101215;--fg:#d9dde1;--mut:#858d95;--pan:#171a1e;--line:#2a2f35;--acc:#d46d7d;--key:#86a4bd;--ok:#7fb39c}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.75 "Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif}
+#app{position:relative;z-index:1;max-width:720px;margin:0 auto;padding:14px 16px 48px}
+#bg{position:fixed;inset:0;z-index:0;background-size:cover;background-position:center;filter:blur(9px);transform:scale(1.08);opacity:0;transition:opacity .8s}
+#bg::after{content:"";position:absolute;inset:0;background:var(--bg);opacity:.8}
+#scene{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border:1px solid var(--line);border-radius:8px;margin:12px 0 0;background:#0d1114}
+#scene[hidden]{display:none}
+
+#timg{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:8px;margin:0 0 20px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:2px solid var(--key);outline-offset:2px}
+header{display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid var(--line);padding-bottom:8px}
+header .t{font-size:13px;color:var(--mut);letter-spacing:.04em;line-height:1.4}
+header .t b{display:block;color:var(--fg);font-size:15px;letter-spacing:.02em}
+#place{font-size:22px;font-weight:700;margin:14px 0 0}
+#desc{margin:2px 0 12px;color:var(--mut);font-size:15px}
+#log{background:var(--pan);border:1px solid var(--line);border-radius:8px;padding:12px 14px;height:36vh;min-height:190px;overflow-y:auto}
+#log p{margin:0 0 10px;white-space:pre-line;opacity:.55}
+#log p.new{opacity:1}
+#log p.sys{color:var(--key);font-size:14px}
+#log p.new:not(.sys){border-left:3px solid var(--acc);padding-left:10px}
+.lbl{font-size:12px;color:var(--mut);letter-spacing:.1em;margin:14px 0 6px}
+.wrap{display:flex;flex-wrap:wrap;gap:8px}
+.btn,#spots button,.chip{background:var(--pan);border:1px solid var(--line);border-radius:6px;padding:8px 12px;text-align:left}
+#spots button:hover,.btn:hover,.chip:hover{border-color:var(--key)}
+#moves button{background:transparent;border:1px dashed var(--key);color:var(--key);border-radius:999px;padding:7px 14px}
+#chp{display:none;flex-direction:column;gap:8px;margin:14px 0}
+#chp.on{display:flex}
+#chp .btn{border-color:var(--acc)}
+.chip.sel{border-color:var(--acc);box-shadow:inset 0 0 0 1px var(--acc)}
+#selbar{display:none;margin-top:10px;font-size:14px;color:var(--acc)}
+#selbar.on{display:block}
+.panel{display:none;margin:12px 0;padding:12px;border:1px solid var(--acc);border-radius:8px;background:var(--pan)}
+.panel.on{display:block}
+#codein{font:inherit;width:9em;padding:6px 8px;margin:0 8px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--fg);letter-spacing:.25em;text-align:center}
+.pad{display:grid;grid-template-columns:repeat(3,56px);gap:6px;margin:10px 0}
+.pad button{height:46px;border:1px solid var(--line);border-radius:6px;background:var(--bg);font-weight:600}
+.pad button:active{background:var(--key);color:#fff}
+.disp{font:600 20px/1 ui-monospace,Menlo,monospace;letter-spacing:.4em;min-height:24px}
+.bottles{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.bottles button{width:92px;padding:8px 4px;border:1px solid var(--line);border-radius:6px 6px 14px 14px;background:var(--bg);text-align:center;font-size:13px;line-height:1.4}
+.bottles button b{display:block;font-size:20px}
+.bottles button.used{opacity:.3}
+details{margin-top:12px;border:1px solid var(--line);border-radius:8px;background:var(--pan)}
+summary{cursor:pointer;padding:10px 14px;font-weight:600}
+#notes{list-style:none;margin:0;padding:0 10px 10px}
+#notes li{margin:0 0 6px}
+#notes button{width:100%;text-align:left;background:transparent;border:1px solid transparent;border-radius:6px;padding:6px 8px;font-size:15px;color:var(--fg)}
+#notes button:hover{border-color:var(--line)}
+#notes button.sel{border-color:var(--acc)}
+.faint{color:var(--mut);opacity:.6;filter:blur(.35px)}
+.msg{align-self:flex-end;max-width:80%;background:var(--acc);color:#fff;border-radius:14px 14px 4px 14px;padding:6px 12px;margin:0 0 10px auto;width:fit-content;font-size:15px}
+.msg.cold{background:var(--line);color:var(--fg)}
+.ghost{display:inline-block;width:1em;margin-left:-1em;opacity:.5;filter:blur(.6px);transform:translate(.2em,.06em);pointer-events:none;user-select:none}
+@media(prefers-reduced-motion:reduce){.ghost{filter:none}}
+#rc{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0;z-index:20}
+#rc .card{background:var(--pan);border:1px solid var(--ok);border-radius:12px;padding:16px 22px;max-width:340px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.2)}
+#rc .t{font-size:13px;letter-spacing:.2em;color:var(--ok);font-weight:700}
+#rc .q{margin:8px 0 4px;font-size:17px}
+#rc .w{font-size:14px;color:var(--mut)}
+#rc.show{animation:rc 2.8s ease forwards}
+#rc.show .card{animation:rcc 2.8s ease forwards}
+#chill{position:fixed;inset:0;pointer-events:none;z-index:19;background:radial-gradient(ellipse at center,transparent 40%,rgba(40,60,80,.38));opacity:0}
+#chill.show{animation:ch 2.8s ease forwards}
+@keyframes rc{0%{opacity:0}12%{opacity:1}78%{opacity:1}100%{opacity:0}}
+@keyframes rcc{0%{transform:translateY(8px) scale(.98)}12%{transform:none}100%{transform:translateY(-6px)}}
+@keyframes ch{0%{opacity:0}15%{opacity:1}100%{opacity:0}}
+@media(prefers-reduced-motion:reduce){#rc.show,#rc.show .card,#chill.show{animation-duration:.01s}}
+#notes .then{display:block;font-size:13px;color:var(--mut)}
+.dots{display:grid;grid-template-columns:repeat(3,64px);gap:14px;margin:12px 0;padding:14px;border-radius:14px;background:#1b1d21;width:fit-content}
+.dots button{width:64px;height:64px;border-radius:50%;border:2px solid #3a3d44;background:#26292f;color:transparent}
+.dots button.on{background:#6b7a8f;border-color:#9fb1c8}
+.dots.lit button.s1{box-shadow:0 0 0 6px rgba(220,220,200,.55) inset}
+.dots.lit button.s2{box-shadow:0 0 0 6px rgba(220,220,200,.3) inset}
+.photos{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.photos button{width:120px;min-height:86px;border:6px solid #f4f1ea;border-bottom-width:18px;background:#d9d2c6;color:#3a332c;font-size:12px;line-height:1.4;padding:6px;text-align:left;box-shadow:0 2px 6px rgba(0,0,0,.15)}
+.photos button.used{opacity:.3}
+.used{display:inline-block;margin-left:6px;font-size:12px;color:var(--ok);border:1px solid var(--ok);border-radius:3px;padding:0 5px;white-space:nowrap}
+table.grid{width:100%;border-collapse:collapse;font-size:14px;margin:8px 0}
+table.grid td,table.grid th{border-bottom:1px solid var(--line);padding:6px 4px;text-align:left;vertical-align:middle}
+table.grid tr.on{background:color-mix(in srgb,var(--acc) 14%,transparent)}
+.seg{display:inline-flex;gap:4px;flex-wrap:wrap}
+.seg button{padding:4px 8px;border:1px solid var(--line);border-radius:4px;background:var(--bg);font-size:13px}
+.seg button.on{border-color:var(--acc);color:var(--acc);font-weight:700}
+.strip{display:flex;gap:6px;align-items:center;margin:4px 0}
+.strip button.s{flex:1;text-align:center;padding:6px;border:1px solid var(--line);border-radius:3px;background:var(--bg)}
+.strip button.s.used{opacity:.3}
+.phone{border:2px solid var(--fg);border-radius:22px;padding:14px;max-width:380px;background:var(--bg)}
+.phone .tabs{display:flex;gap:6px;margin-bottom:10px}
+.phone .tabs button{flex:1;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--pan)}
+.phone .tabs button.on{border-color:var(--acc);color:var(--acc);font-weight:700}
+.chk{display:flex;align-items:center;gap:8px;padding:6px 4px;border-bottom:1px solid var(--line);font-size:14px}
+.chk button{margin-left:auto;padding:4px 10px;border:1px solid var(--line);border-radius:4px;background:var(--pan);font-size:13px}
+.chk button.on{border-color:var(--ok);color:var(--ok)}
+.act{font-weight:700;color:var(--acc)}
+.doc{border:1px solid var(--line);background:var(--pan);padding:14px 16px;border-radius:6px;margin:12px 0;font-size:15px}
+.doc h3{margin:0 0 4px;font-size:18px}
+.doc .by{font-size:12px;color:var(--mut);margin-bottom:10px}
+.ntip{font-size:13px;color:var(--mut);padding:0 18px 4px}
+.row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.ov{position:fixed;inset:0;z-index:5;background:var(--bg);display:none;overflow-y:auto;padding:calc(env(safe-area-inset-top,0px) + 8vh) 22px 40px}
+.ov.on{display:block}
+.ov>div{max-width:540px;margin:0 auto}
+.ov h2{font-size:34px;margin:0 0 4px;letter-spacing:.12em}
+.sub{color:var(--mut);margin:0 0 22px}
+.q{color:var(--mut);font-size:15px}
+.tag{display:inline-block;border:1px solid var(--acc);color:var(--acc);padding:0 8px;border-radius:3px;font-size:13px}
+#card{cursor:pointer;text-align:center;padding-top:calc(env(safe-area-inset-top,0px) + 28vh)}
+#card .big{font-size:28px;font-weight:700;letter-spacing:.08em;margin:6px 0}
+#card .slp{font-size:18px;color:var(--acc);margin-top:18px}
+table.res{width:100%;border-collapse:collapse;font-size:15px;margin:10px 0}
+table.res td{border-bottom:1px solid var(--line);padding:7px 4px;vertical-align:top}
+.okc{color:var(--ok);font-weight:600}.noc{color:var(--acc);font-weight:600}
+.slots{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.slots div{border:1px dashed var(--line);border-radius:6px;padding:12px;color:var(--mut)}
+.slots div.got{border-style:solid;color:var(--fg)}
+.mut{color:var(--mut);font-size:14px}
+</style></head><body>
+<div id="bg"></div><div id="app">
+<header><div class="t"><b id="htitle">온보딩</b><span id="hsub"></span></div><button class="btn" id="hintb">힌트</button></header>
+<img id="scene" alt="" hidden><div id="place"></div><p id="desc"></p>
+<div id="log" aria-live="polite"></div>
+<div class="panel" id="codep"><div id="codeh"></div><div id="codebox"></div></div>
+<div class="panel" id="ordp"></div>
+<div id="acts"><div class="lbl">조사하기</div><div class="wrap" id="spots"></div><div id="mw"><div class="lbl">이동</div><div class="wrap" id="moves"></div></div></div>
+<div id="chp"></div>
+<div class="lbl">가방</div><div class="wrap" id="inv"></div>
+<div id="selbar"></div>
+<details id="nd"><summary>단서 노트 <span id="nc"></span></summary><p class="ntip">단서를 누른 뒤 인물을 누르면 그 단서를 제시합니다. 실제로 쓰인 단서에는 '회수됨'이 붙습니다.</p><ul id="notes"></ul></details>
+<div class="row"><button class="btn" id="reset">처음부터</button></div>
+</div>
+
+<div class="ov on" id="title"><div>
+<img id="timg" src="title.webp" alt="" onerror="this.remove()">
+<h2>두 번째 봄</h2><p class="sub">SECOND SPRING</p>
+<p>사귄 지 1년, 기념일까지 엿새. 요즘 그녀는 전보다 더 다정하다.<br>“두 번째 봄은 같이 시작하고 싶어.”</p>
+<p class="q">연애 공포 미스터리 · 약 60분 · 감금, 집착, 사망 장면이 나옵니다.</p>
+<div id="dstat" style="display:none;text-align:center;margin:0 0 16px;padding:10px 12px;border:1px solid var(--line);border-radius:6px;font-size:14px;line-height:1.8"></div>
+<div class="row"><button class="btn" id="start">새로 시작</button><button class="btn" id="cont" style="display:none">이어하기</button><button class="btn" id="gal">엔딩 도감</button></div>
+</div></div>
+<div class="ov" id="card"><div><p class="tag" id="cardtag"></p><div class="big" id="cardname"></div><div class="slp" id="cardslp"></div><p class="q" style="margin-top:40px">화면을 눌러 계속</p></div></div>
+<div class="ov" id="endv"><div id="endc"></div></div>
+<div id="chill"></div><div id="rc"><div class="card"><div class="t">회수됨</div><div class="q" id="rq"></div><div class="w" id="rw"></div></div></div>
+
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+const KEY="spring_v1",GKEY="spring_endings";
+const ENDINGS=["봄","같은 얼굴","잘못 고른 손","사라진 봄","1주년","두 번째 봄"];
+
+/* ---------- 아이템 ---------- */
+const ITEMS={
+ticket:["영화 티켓","1년 전 첫 영화. ‘7관 F12’. 정우가 지갑에 넣고 다닌다."],
+vax:["두부의 예방접종 수첩","‘입양일 3월 14일’. 두 사람의 이름이 나란히 적혀 있다."],
+camera:["필름 카메라","채원의 카메라. 24장을 다 찍은 필름이 들어 있다. 플래시가 된다."],
+churu:["두부 간식 (츄르)","두부가 제일 좋아하는 참치 맛."],
+cleanser:["클렌징 워터","화장솜에 적시면 화장이 지워진다."],
+card:["오래된 연하장","스캔해 둔 연하장. ‘채원이, 채은이 모두 건강하길. — 정숙 이모’"],
+key:["여분 열쇠","채원이 1년 전 국밥집 사장님께 ‘혹시 몰라서’ 맡긴 원룸 열쇠 꾸러미. 건물 출입문 열쇠도 달려 있다."]};
+const iname=id=>ITEMS[id][0],idesc=id=>{const d=ITEMS[id][1];return typeof d==="function"?d():d};
+
+/* ---------- 상태 ---------- */
+let S=null,CODE=null,PANEL=null,CH=null,SAID=0;
+const fresh=()=>({ch:1,room:"r1",f:{},g:{},inv:[],notes:[],sel:null,log:[],from:0,over:0,alert:0,hk:"",hl:0,time:"",snap:null});
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const load=()=>{try{const r=localStorage.getItem(KEY);return r?JSON.parse(r):null}catch(e){return null}};
+const gotEnd=()=>{try{return JSON.parse(localStorage.getItem(GKEY)||"[]")}catch(e){return []}};
+function markEnd(n){try{const g=gotEnd();if(!g.includes(n)){g.push(n);localStorage.setItem(GKEY,JSON.stringify(g))}}catch(e){}}
+const F=()=>S.f,G=()=>S.g;
+let PEND=[];
+function flushP(){if(PEND.length){PEND.forEach(x=>S.log.push("§"+x));PEND=[]}}
+function say(t){S.log.push(t);flushP();while(S.log.length>60){S.log.shift();S.from=Math.max(0,S.from-1)}SAID=1;queueMicrotask(()=>{SAID=0});render()}
+function sys(t){if(SAID){S.log.push("§"+t);render()}else{PEND.push(t);queueMicrotask(()=>{if(PEND.length){flushP();render()}})}}
+function note(id,t){if(S.notes.some(n=>n.id===id))return;S.notes.push({id,t});sys("단서 노트 — "+t)}
+const hasN=id=>S.notes.some(n=>n.id===id);
+/* 회수됨: 단서가 실제로 쓰이는 순간. 가운데 카드 + 화면이 잠깐 식음(B안) */
+let RCQ=[];
+function used(id,why){const n=S.notes.find(x=>x.id===id);if(!n||n.used)return;n.used=1;n.then=why||"";RCQ.push([n.t.split(" — ")[1]||n.t.split(" — ")[0],why||""]);if(RCQ.length===1)setTimeout(rcNext,250)}
+function rcNext(){if(!RCQ.length)return;const [q,w]=RCQ[0];$("rq").textContent=q;$("rw").textContent="단서가 이어졌다"+(w?" — "+w:"");const rc=$("rc"),ch=$("chill");rc.classList.remove("show");ch.classList.remove("show");void rc.offsetWidth;rc.classList.add("show");ch.classList.add("show");setTimeout(()=>{RCQ.shift();rcNext()},2900)}
+/* 증거 점수 = 어긋남 x1~x8 중 회수까지 된 수 */
+const evid=()=>S.notes.filter(n=>/^x\d$/.test(n.id)&&n.used).length;
+function give(id){if(!S.inv.includes(id)){S.inv.push(id);sys("가방에 넣었다 — "+iname(id))}}
+function take(id){S.inv=S.inv.filter(i=>i!==id)}
+const has=id=>S.inv.includes(id);
+/* 경계도: 채은이 눈치챈 정도 (0~5). 화면에 숫자를 보여 주지 않는다 */
+function alertUp(n,why){S.alert=Math.max(0,Math.min(5,S.alert+n));(G().aw=G().aw||[]).push(why||"")}
+function go(r,t){S.room=r;CODE=null;PANEL=null;S.sel=null;const R=ROOMS[r];if(R&&R.enter&&R.enter())return;say(t)}
+const choose=o=>{CH=o;render()};
+const nav=(n,r,t,show)=>({n,nav:1,show,look(){go(r,t)}});
+/* 문자 메시지: ✉로 시작하는 줄은 말풍선으로 보인다 */
+function msg(t){say("✉"+t)}
+
+/* ---------- 입력 패널 ---------- */
+function askCode(len,check,ok,h){PANEL=null;CODE={mode:"text",len,check,ok,h};render();setTimeout(()=>{const i=$("codein");if(i)i.focus()},0)}
+function codeSubmit(){if(!CODE||CODE.mode!=="text")return;S.from=S.log.length;const v=$("codein").value.trim(),c=CODE,r=c.check(v);if(r===true){CODE=null;c.ok(v)}else{$("codein").value="";if(r)say(r)}}
+function openPanel(p){CODE=null;PANEL=p;render()}
+function closePanel(){PANEL=null;render()}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const ROOMS={};
+const CHAP={};
+
+/* ---------- 답장 카운터 (Firebase Firestore REST) ----------
+   그녀에게 “나도 보고 싶어”라고 답장할 때마다 +1. 0이거나 연결이 안 되면 숨긴다. */
+const FIREBASE={projectId:"seryn-onboarding",apiKey:"AIzaSyA8-MGweBNch69FOFpxgpK2CxsLuvaIfl4"};
+const FB_DOC=()=>"projects/"+FIREBASE.projectId+"/databases/(default)/documents/stats/replies";
+const fbOn=()=>!!(FIREBASE.projectId&&FIREBASE.apiKey);
+async function fbGet(){if(!fbOn())return null;try{const r=await fetch("https://firestore.googleapis.com/v1/"+FB_DOC()+"?key="+FIREBASE.apiKey);if(!r.ok)return null;const j=await r.json();return +((j.fields&&j.fields.n&&j.fields.n.integerValue)||0)}catch(e){return null}}
+function fbInc(k){if(!fbOn())return;try{fetch("https://firestore.googleapis.com/v1/projects/"+FIREBASE.projectId+"/databases/(default)/documents:commit?key="+FIREBASE.apiKey,{method:"POST",headers:{"Content-Type":"application/json"},keepalive:true,body:JSON.stringify({writes:[{transform:{document:FB_DOC(),fieldTransforms:[{fieldPath:"n",increment:{integerValue:String(k)}}]}}]})}).catch(()=>{})}catch(e){}}
+function replied(){fbInc(1)}
+async function showReplyStats(){const el=$("dstat");if(!el)return;el.style.display="none";
+ const all=await fbGet();if(all&&all>0){el.innerHTML='<div>그녀에게 도착한 “나도 보고 싶어” <b>'+all.toLocaleString("ko-KR")+'통</b></div>';el.style.display=""}}
+
+/* ================= 공통 ================= */
+/* 떠보기: 그녀에게 어긋남 단서를 직접 들이밀면 처음 한 번 경계도 +1 */
+function probe(id,line,why){const g=G();g.pr=g.pr||{};if(!g.pr[id]){g.pr[id]=1;alertUp(1,why)}say(line+(S.alert>=3?"\n…웃음기가 없다. “요즘 나를 이상하게 보네?”":""))}
+const heart=()=>(G().unans||0)>0?"":" 💕";
+/* 문자가 끼어든다. 답을 안 하면 다음 메시지의 하트가 사라진다 */
+function textIn(t,next){msg(t+heart());choose([{t:"“나도 보고 싶어.” 답장한다",f:()=>{msg("나도 보고 싶어");replied();say("보내고 나서 한참 화면을 본다.");next&&next()}},{t:"답하지 않는다",f:()=>{G().unans=(G().unans||0)+1;say("화면을 엎어 둔다.");next&&next()}}])}
+const herName=()=>S.ch>=4?"‘채원’":"채원";
+
+/* ================= 1장 「1주년 D-6」 ================= */
+CHAP[1]={name:"1주년 D-6",day:"토요일 아침",room:"r1",text:"토요일 아침 아홉 시. 채원의 원룸에 버터 냄새가 가득하다.\n1주년까지 엿새. 요즘 그녀는 전보다 더 다정하다."};
+const herPres={
+ x1:()=>probe("x1","“말했잖아, 오른손으로 고치는 중이라고. 왼손은 불편하잖아. 왜, 그게 신경 쓰여?”","오른손 숟가락을 따져 물음"),
+ x2:()=>probe("x2","“다이어트 사료로 바꿔서 삐친 거래도.” 그녀가 두부 쪽을 보지 않고 말한다.","두부 이야기를 꺼냄"),
+ x3:()=>probe("x3","“보일러야. 오래된 건물이잖아.” 대답이 조금 빠르다.","지하 소리를 물음"),
+ x4:()=>probe("x4","“우우. 됐지?” 그녀가 웃는다. 정확히 한 박자 늦게.","별명을 시험함"),
+ x5:()=>probe("x5","“요즘 단 게 당겨. 나이 드나 봐.”","커피 취향을 물음"),
+ x6:()=>probe("x6","“그날은 너무 설레서 기억이 하나도 안 나. 미안해, 우우.”","첫 데이트를 물음"),
+ x7:()=>probe("x7","그녀가 소매를 내린다. “컨실러 발랐어. 보기 싫잖아.”","흉터를 물음"),
+ x8:()=>probe("x8","“알레르기? 요즘 좀 나아진 것 같아. 신기하지?”","복숭아를 물음")};
+Object.assign(ROOMS,{
+r1:{name:"채원의 원룸",desc:"햇볕이 잘 드는 원룸. 창가의 작업 책상, 고양이 캣타워, 2인용 식탁.",spots:[
+{n:"채원",person:1,look(){const f=F();
+ if(!f.t1){f.t1=1;return say("“우우, 일어났어? 계란말이 할 건데 간 좀 봐 줘.”\n앞치마를 두른 그녀가 프라이팬을 흔든다. 정우의 볼에 입을 맞추고 다시 돌아선다.")}
+ if(!f.t2){f.t2=1;say("둘이 식탁에 마주 앉는다. 그녀가 오른손으로 숟가락을 들어 국을 뜬다. 채원은 늘 왼손으로 먹던 사람이다.\n정우의 시선을 느꼈는지 그녀가 웃는다. “아, 요즘 오른손으로 고치려고 노력 중이야. 왼손잡이는 불편한 게 많잖아.”\n그럴 수도 있겠다. 정우도 웃는다.");note("x1","오른손 숟가락 — “요즘 오른손으로 고치려고 노력 중이야”");setTimeout(()=>{say("°바닥 아래에서 둔탁하게, 쿵.");say("“보일러야.” 그녀가 웃는다. “이 건물 보일러는 지하에 있거든.”");note("x3","지하의 둔한 소리 — “보일러야”")},50);return}
+ if(!f.plan){f.plan=1;return say("설거지를 하던 그녀가 돌아본다.\n“있지, 이번 기념일에는 우리 같이 살 집 보러 가자. 아니, 아예 그날 이사하면 어때? 금요일 밤에.”\n“그날?”\n“응. 두 번째 봄은 같이 시작하고 싶어.”\n그녀의 눈이 반짝인다. 그리고 덧붙인다. “아, 커플 앱에 기념일 일정 좀 넣어 줘. …비번이 뭐였더라? 힌트 보면 우우는 알 거야.”")}
+ say(S.alert>=2?"그녀가 웃는다. 눈은 정우를 오래 본다.":"그녀가 콧노래를 부르며 식탁을 닦는다.")},pres:herPres},
+{n:"두부",look(){const f=F();if(f.cat)return say("두부는 정우 무릎에서 내려오지 않는다. 그녀가 다가오면 귀를 뒤로 젖힌다.");f.cat=1;say("두부가 정우에게 와서 머리를 부빈다. 그녀가 쓰다듬으려 손을 뻗자, 두부가 하악질을 한다.\n“다이어트 사료로 바꿔서 삐친 거야.” 그녀가 손을 거둔다.");note("x2","두부의 하악질 — “다이어트 사료로 바꿔서 삐친 거야”")},use:{churu(){say("두부가 츄르를 받아먹고 정우 무릎으로 올라온다. 그녀 쪽은 한 번도 쳐다보지 않는다.")}}},
+{n:"작업 책상",look(){const f=F();if(f.cam)return say("채원의 작업 책상. 그리다 만 일러스트가 23일 전 날짜에 멈춰 있다.");f.cam=1;give("camera");say("책상 위에 채원이 아끼는 필름 카메라가 있다. 카운터가 24. 다 찍었는데 아직 현상하지 않았다.\n채원은 늘 다 찍으면 그날 바로 현상하러 갔었는데.");note("film","필름 카메라 — 24장을 다 찍었는데 현상하지 않았다. 채원답지 않다")}},
+{n:"냉장고",look(){const f=F();if(f.chu)return say("우유, 달걀, 바닐라 시럽 한 병.");f.chu=1;give("churu");say("두부 간식 츄르 한 상자. 하나를 주머니에 넣는다. 문 칸에는 처음 보는 바닐라 시럽이 있다.")}},
+{n:"내 지갑",look(){if(has("ticket"))return say("지갑 속 사진 칸에 둘이 찍은 스티커 사진이 있다.");give("ticket");say("지갑 깊숙이 1년 전 영화 티켓을 넣어 두었다. 둘이 처음 같이 본 영화. ‘7관 F12’.")}},
+{n:"채원의 휴대폰",show:()=>F().plan,look(){const f=F();if(f.app)return say("커플 앱. 1주년까지 D-6.");say("커플 앱 잠금 화면. 비밀번호 4자리.\n힌트: “우리가 처음 같이 본 영화의 상영관과 좌석”");askCode(4,v=>{if(v==="0712")return true;if(v==="0612")return "열리지 않는다. 좌석의 알파벳을 숫자로 바꿀 필요는 없을지도 모른다. 힌트는 ‘상영관과 좌석’이다.";return "열리지 않는다."},()=>{f.app=1;used("ticketn");say("열렸다. 기념일 일정을 넣는다.\n대화방을 넘기다 손이 멈춘다. 3주 전부터 그녀의 메시지에 하트 이모티콘이 갑자기 늘었다. 그 전엔 거의 쓰지 않던 사람이다.\n그리고 사진첩. 3주 전에 올린 복숭아 사진. ‘제철 복숭아 최고 🍑’\n채원은 복숭아 알레르기가 있다. 처음 만난 날 그렇게 말했다.");note("x8","복숭아를 먹음 — 커플 앱 사진. “알레르기가 나아진 것 같아”");note("heart","커플 앱 — 3주 전부터 하트 이모티콘이 갑자기 늘었다")},"비밀번호 4자리")},use:{ticket(){say("티켓을 꺼내 본다. ‘7관 F12’. 상영관 7, 좌석 F열 12번.");note("ticketn","영화 티켓 — 7관 F12 (상영관과 좌석)")}}},
+nav("현관으로","r1d","현관으로 간다.")]},
+r1d:{name:"채원의 원룸 · 현관",desc:"신발장 위에 둘이 같이 고른 디퓨저. 문 너머로 지하로 내려가는 계단이 보인다.",spots:[
+{n:"신발장 서랍",look(){if(has("vax"))return say("영수증과 건전지뿐이다.");give("vax");say("서랍에 두부의 예방접종 수첩이 있다. ‘입양일 3월 14일. 보호자: 정우, 채원’.\n두부가 이 집에 온 날이다.")}},
+{n:"지하 계단 문",look(){say("철문에 ‘입주자 외 출입 금지’. 아래는 보일러실과 개인 창고라고 들었다.")}},
+{n:"인사하고 나선다",show:()=>F().app,look(){choose([{t:"오늘은 집에 간다 (1장 종료)",f:()=>{S.over=1;render()}},{t:"아직 있는다",f:()=>say("신발을 다시 벗는다.")}])}},
+nav("방으로","r1","방으로 돌아온다.")]}});
+
+/* ================= 2장 「우리 동네」 ================= */
+CHAP[2]={name:"우리 동네",day:"일요일 낮",room:"r2a",text:"일요일 점심. 첫 데이트 코스를 다시 걷기로 했다.\n“첫 데이트 때처럼.” 그녀가 팔짱을 낀다."};
+const SHELF=[["811","시"],["813.6","한국 현대 소설"],["813.7","한국 장르 소설"],["823","영미 소설"],["843","프랑스 소설"]];
+function openShelf(){const st={s:-1};openPanel({draw(el){el.innerHTML='<div>북카페 책장. 분류번호별 칸과 단(위에서부터)을 고르세요.</div><div class="lbl">분류번호</div><div class="seg">'+SHELF.map((s,i)=>`<button data-s="${i}" class="${st.s===i?"on":""}">${s[0]} ${s[1]}</button>`).join("")+'</div>'+(st.s>=0?'<div class="lbl">위에서 몇 번째 단</div><div class="seg">'+[1,2,3,4,5].map(n=>`<button data-r="${n}">${n}단</button>`).join("")+'</div>':'')+'<div class="row"><button class="btn" data-x="x">닫기</button></div>';
+ el.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{st.s=+b.dataset.s;render()});
+ el.querySelectorAll("[data-r]").forEach(b=>b.onclick=()=>{S.from=S.log.length;const r=+b.dataset.r;if(st.s===1&&r===3){PANEL=null;G().memoR=1;say("813.6, 위에서 세 번째 단. 낡은 시집 두 권 사이에 접힌 메모가 끼워져 있다. 1년 전 날짜.\n“다음 주 이 시간에, 같은 칸에서 답장 기다릴게요. — 채원”\n처음 받은 메모다. 글씨가 왼쪽으로 단정하게 기울어 있다.");note("memoR","1년 전 채원의 첫 메모 — 글씨가 왼쪽으로 기울어 있다");checkHand()}else say("책들 사이를 뒤져 보지만 아무것도 없다.")});
+ el.querySelector("[data-x=x]").onclick=closePanel}})}
+function checkHand(){if(G().memoR&&F().sig){used("x1","1년 전 메모의 글씨는 왼쪽으로, 오늘 영수증 서명은 오른쪽으로 기울어 있다");note("hand","글씨 — 1년 전 메모는 왼쪽 기울기, 오늘 서명은 오른쪽 기울기")}}
+Object.assign(ROOMS,{
+r2a:{name:"단골 국밥집",desc:"김이 자욱한 국밥집. 1년 전 첫 데이트 날 점심을 먹은 곳이다.",spots:[
+{n:"채원",person:1,look(){const f=F();
+ if(!f.eat){f.eat=1;say("국밥 두 그릇. 정우가 장난스럽게 말한다. “오늘은 우우가 쏜다.”\n그녀가 숟가락을 든 채 멈춘다. 한 박자.\n“…아, 우우. 응, 고마워.”\n“…”\n“아, 장난친 거야. 우우.” 그녀가 웃는다.");note("x4","별명 ‘우우’에 한 박자 늦은 반응 — “장난친 거야”");return}
+ if(!f.rest){f.rest=1;return say("“나 화장실 좀.” 그녀가 일어선다.\n사장님이 행주를 들고 테이블 쪽으로 온다.")}
+ say("그녀가 돌아와 정우의 손을 잡는다. “다음은 북카페 가자.”")},pres:herPres},
+{n:"사장님",person:1,look(){const f=F();if(has("key"))return say("“둘이 오래오래 잘 지내요.”");if(!f.rest)return say("사장님이 반갑게 손을 흔든다. “둘이 또 왔네! 1주년 다 됐지?”");give("key");say("사장님이 목소리를 낮춘다. “정우 씨. 이거.”\n열쇠 꾸러미 하나를 테이블 밑으로 건넨다.\n“채원 씨가 1년 전에 맡긴 거예요. ‘혹시 몰라서요. 무슨 일 있으면 정우 씨한테만 주세요’ 그러더라고. 근데 요즘 채원 씨가 이거 얘기를 한 번도 안 해서.”\n“…”\n“그냥, 정우 씨가 갖고 있어요.”");note("keyn","여분 열쇠 — 채원이 ‘혹시 몰라서, 정우 씨한테만’ 맡겼다. 요즘의 그녀는 이 열쇠 이야기를 한 번도 하지 않는다")}},
+{n:"북카페로",nav:1,show:()=>F().eat,look(){go("r2b","골목을 걸어 민지의 북카페로 간다. 그녀가 정우의 팔에 기댄다.")}}]},
+r2b:{name:"민지의 북카페",desc:"벽 한 면이 책장인 작은 북카페. 창가 자리 옆에 ‘교환 메모장’ 바구니가 놓여 있다.",spots:[
+{n:"민지",person:1,look(){const f=F();if(!f.mj){f.mj=1;say("“채원아!” 카운터의 민지가 손을 흔들다 멈춘다. “너 요즘 왜 내 연락 안 받아? 3주째야.”\n“아, 바빴어. 미안.” 그녀가 웃어넘긴다.\n민지가 정우에게 눈짓한다. “둘이 여기서 처음 만났잖아. 교환 메모장으로. 기억나지, 채원아?”\n“…그랬나? 너무 설레서 기억이 안 나.”\n민지의 웃음이 잠깐 굳는다.");note("x6","첫 데이트를 기억 못 함 — “너무 설레서 기억이 안 나”");return}say("민지가 작게 말한다. “쟤 요즘 좀 이상하지 않아? …아니다, 내가 예민한가.”")}},
+{n:"채원",person:1,look(){const f=F();if(!f.cof){f.cof=1;say("그녀가 커피를 주문한다. “아메리카노에 바닐라 시럽 두 번이요.”\n채원은 늘 블랙이었다.\n“요즘 단 게 당겨.” 그녀가 카드로 결제하고 영수증에 서명한다.");note("x5","달게 탄 커피 — “요즘 단 게 당겨”");return}
+ choose([{t:"“우리 첫 데이트 어디였는지 기억나?”",f:()=>{note("x6","첫 데이트를 기억 못 함 — “너무 설레서 기억이 안 나”");probe("x6","그녀가 컵을 내려놓는다. “…여기? 아니었나. 너무 설레서 기억이 하나도 안 나. 미안해, 우우.”","첫 데이트를 물음")}},{t:"그냥 웃는다",f:()=>say("그녀가 커피를 한 모금 마신다. 많이 달다.")}])},pres:herPres},
+{n:"영수증",show:()=>F().cof,look(){F().sig=1;say("테이블 위 영수증. 그녀의 서명이 오른쪽으로 기울어 있다. 펜을 꾹 눌러 쓴 자국.");note("sig","오늘 영수증 서명 — 오른쪽으로 기울어 있다");checkHand()}},
+{n:"교환 메모장",look(){if(G().memoR)return say("메모장 바구니. 1년 전 그 메모는 정우의 주머니에 있다.");say("교환 메모장 바구니. 표지에 손글씨: “813.6 위에서 세 번째”.\n1년 전 채원이 책장에 메모를 숨겨 두던 방식이다.");note("shelfn","교환 메모장 표지 — “813.6 위에서 세 번째”")}},
+{n:"책장",look(){openShelf()}},
+{n:"집으로 돌아간다",show:()=>G().memoR,look(){choose([{t:"그녀의 원룸으로 돌아간다 (2장 종료)",f:()=>{S.over=2;render()}},{t:"조금 더 있는다",f:()=>say("창밖으로 해가 기운다.")}])}}]}});
+
+/* ================= 3장 「작은 균열」 ================= */
+CHAP[3]={name:"작은 균열",day:"일요일 밤",room:"r3",text:"일요일 밤. 오늘은 그녀의 원룸에서 자고 가기로 했다.\n창밖에 봄비가 내린다."};
+const PAT="12369";
+function openPattern(){const st={lit:0,seq:[]};openPanel({draw(el){el.innerHTML='<div>두 번째 휴대폰. 잠금 패턴을 그리세요. 화면에는 아무 자국도 보이지 않는다.</div><div class="dots '+(st.lit?"lit":"")+'">'+[1,2,3,4,5,6,7,8,9].map(d=>`<button data-d="${d}" class="${st.seq.includes(d)?"on":""} ${st.lit?(d===1?"s1":[2,3,6,9].includes(d)?"s2":""):""}">${d}</button>`).join("")+'</div><div class="mut">'+(st.lit?"비스듬한 빛에 기름 자국이 드러난다. ㄱ자 모양과 그 끝의 점 하나. 1번 자리 자국이 가장 진하다.":"")+'</div><div class="row">'+(st.lit?"":'<button class="btn" data-x="lit">정우의 휴대폰 라이트를 비스듬히 비춘다</button>')+'<button class="btn" data-x="r">다시 그리기</button><button class="btn" data-x="x">닫기</button></div>';
+ const lt=el.querySelector("[data-x=lit]");if(lt)lt.onclick=()=>{st.lit=1;render()};
+ el.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{const d=+b.dataset.d;if(st.seq.includes(d))return;st.seq.push(d);render();if(st.seq.length===5)setTimeout(()=>{S.from=S.log.length;if(st.seq.join("")===PAT){PANEL=null;F().ph2=1;say("잠금이 풀린다. 연락처는 하나뿐. 대화방도 하나.\n[집주인]\n“새댁, 도어락 번호 바꾸셨어요? 관리비 고지서 넣으려다 못 들어갔어요.”\n“네, 바꿨어요. 이제 내 생일이에요.”\n채원의 원룸 문은 열쇠로 연다. 도어락이 아니다.\n새로 이사 갈 집의 집주인일까?");note("phone2","두 번째 휴대폰 — 집주인 문자: “도어락 바꿨어요. 이제 내 생일이에요”")}else{st.seq=[];say("잠금이 풀리지 않는다.")}},300)});
+ el.querySelector("[data-x=r]").onclick=()=>{st.seq=[];render()};el.querySelector("[data-x=x]").onclick=closePanel}})}
+Object.assign(ROOMS,{
+r3:{name:"채원의 원룸 · 밤",desc:"스탠드 하나만 켠 방. 빗소리. 그녀의 가방이 의자에 걸려 있다.",spots:[
+{n:"채원",person:1,look(){const f=F();
+ if(!f.n1){f.n1=1;return say("둘이 이불을 덮고 영화를 본다. 그녀가 정우의 어깨에 머리를 기댄다.\n“우우, 나 요즘 너무 행복해. 이게 다 내 거 같아서.”\n“…내 거?”\n“응. 우리.” 그녀가 웃는다.")}
+ if(!f.sh){f.sh=1;return say("“나 씻고 올게.” 그녀가 욕실로 들어간다. 물소리.\n의자에 걸린 그녀의 가방이 반쯤 열려 있다.")}
+ if(!f.out){f.out=1;return say("그녀가 젖은 머리로 나온다. 정우의 옆에 눕는다.\n손목 안쪽이 눈에 들어온다. 매끈하다. 늘 있던 화상 흉터가, 없다.")}
+ if(!f.ask7&&f.out){f.ask7=1;return choose([{t:"“흉터 좀 보여 줘.”",f:()=>{note("x7","나타났다 사라지는 흉터 — “컨실러 발랐어”");probe("x7","그녀가 손목을 이불 속으로 넣는다. “…컨실러 발랐어. 보기 싫잖아. 왜 갑자기?”","흉터를 물음")}},{t:"모른 척한다",f:()=>say("정우는 눈을 감는다. 잘못 봤겠지.")}])}
+ say("그녀가 정우의 품으로 파고든다. 숨소리가 고르다.")},pres:Object.assign({},herPres,{phone2(){probe("p2","휴대폰 이야기를 꺼내자 그녀의 얼굴이 하얘진다. “…회사 폰이야. 일 때문에.” 그녀가 가방을 자기 쪽으로 끌어당긴다.","두 번째 휴대폰을 들이밂")}})},
+{n:"그녀의 가방",show:()=>F().sh&&!F().out,look(){const f=F();if(f.ph2)return say("휴대폰을 제자리에 넣어 둔다.");say("가방 안에 휴대폰이 두 대 있다. 하나는 늘 쓰던 것. 하나는 처음 보는 검은 폰이다.");openPattern()}},
+{n:"욕실",show:()=>F().out,look(){if(has("cleanser"))return say("세면대 위에 컨실러 튜브가 굴러다닌다. 채원은 원래 화장을 거의 안 했다.");give("cleanser");say("김이 서린 욕실. 세면대 위에 클렌징 워터와 화장솜. 그리고 처음 보는 컨실러.\n흉터가 사라진 손목, 처음 보는 컨실러. 클렌징 워터를 작은 병에 조금 덜어 둔다.")}},
+{n:"잠든다",show:()=>F().out&&!F().dawn,look(){const f=F();f.dawn=1;S.time="03:12";say("…\n새벽 3시 12분. 눈을 뜬다. 옆자리가 비어 있다.\n욕실 문틈으로 빛이 샌다. 그녀가 거울 앞에 서 있다. 작게, 아주 작게 중얼거린다.\n“채원아. 채원아. …채원아.”\n자기 이름을, 연습하듯이.");note("mirror","새벽 거울 앞 — 자기 이름을 연습하듯 “채원아, 채원아”");setTimeout(()=>{say("°발밑 아래에서 다시, 쿵. 쿵쿵.");say("현관 쪽에서 두부가 운다. 길고 낮게.")},60)}},
+{n:"현관의 두부",show:()=>F().dawn&&!F().morn,look(){F().dcat=1;say("두부가 현관 밖 지하 계단 철문 앞에 웅크리고 앉아 운다. 정우가 안아 올려도 계속 철문 쪽을 본다.");note("door","두부 — 새벽에 지하 계단 철문 앞에서 울었다")}},
+{n:"아침이 된다",show:()=>F().dawn&&!F().morn,look(){const f=F();f.morn=1;S.time="08:30";say("아침. 그녀가 커피를 내린다. 소매를 걷어 올린 손목 안쪽에, 화상 흉터가 있다.\n어젯밤에는 분명히 없었다.");note("x7","나타났다 사라지는 흉터 — 어젯밤엔 없었는데 아침엔 있다");choose([{t:"출근한다 (3장 종료)",f:()=>{S.over=3;render()}}])}}]}});
+
+/* ================= 4장 「가족이 없는 사람」 ================= */
+CHAP[4]={name:"가족이 없는 사람",day:"월요일",room:"r4a",text:"월요일. 출근은 했지만 일이 손에 잡히지 않는다.\n점심시간에 회사를 나와, 그녀가 오늘 나가지 않는다는 공유 작업실로 향한다."};
+function openCall(){const f=F();say("연하장 아래 적힌 번호로 전화를 건다. 신호가 길다.\n“…여보세요?”\n“안녕하세요. 채원 씨 남자친구 정우라고 합니다.”\n긴 침묵.\n“채원이가… 남자친구를? 아이고. 걔가 연락을 다 끊고 살아서. 잘 지내요?\n그런데, 채은이는 요즘 어떻게 지내니? 둘이 연락은 하고?”");note("twin","정숙 이모 — 채원에게 쌍둥이 동생 ‘채은’이 있다");f.call=1;callMenu()}
+function callMenu(){const f=F(),q=f.q||(f.q={});const o=[];
+ if(!q.a)o.push({t:"“채은이가… 누구예요?”",f:()=>{q.a=1;say("“몰랐어요? 쌍둥이 동생이요. 얼굴이 똑같아서 엄마도 헷갈렸지.\n엄마가 둘을 다르게 부르려고 채원이한테만 왼손에 팔찌를 채웠어요. 채원이는 왼손잡이, 채은이는 오른손잡이.”");note("bracelet","이모 — 채원은 왼손잡이, 채은은 오른손잡이. 엄마가 채원에게만 왼손 팔찌");used("x1","이모: “채원이는 왼손잡이, 채은이는 오른손잡이.”");callMenu()}});
+ if(!q.b)o.push({t:"“11년 전에 무슨 일이 있었나요?”",f:()=>{q.b=1;say("이모의 목소리가 낮아진다.\n“열여덟 살 때 채은이가 언니 남자친구한테 언니인 척을 했어요. 들키니까… 말리던 채원이 손목에 끓는 물을 부었어. 채원이 왼쪽 손목 흉터가 그때 생긴 거예요.\n채은이는 병원에 오래 있었고, 채원이는 그 길로 집을 나갔어요. 가족이 없다고 했다면… 그래서일 거예요.”");note("burn","이모 — 11년 전 채은이 언니 행세를 하다 들키자 채원 손목에 끓는 물. 흉터는 그때 생김");used("x7","이모: “채원이 왼쪽 손목 흉터가 그때 생긴 거예요.”");callMenu()}});
+ if(!q.c)o.push({t:"“두 사람 생일이 같나요?”",f:()=>{q.c=1;say("“쌍둥이라도 날짜는 달라요. 채원이는 9월 27일 밤 11시 50분, 채은이는 자정 넘어서 28일. 그래서 채은이가 어릴 때 그렇게 억울해했지. 언니는 하루를 먼저 가졌다고.”");note("bday","이모 — 생일: 채원 9월 27일, 채은 자정 넘어 9월 28일");callMenu()}});
+ if(!q.d)o.push({t:"“두 사람 입맛이 달랐나요?”",f:()=>{q.d=1;say("“완전 달랐지. 채은이는 어릴 때부터 단 것만 먹고 커피도 시럽을 들이부었어. 채원이는 블랙.\n그리고 채원이는 복숭아가 닿기만 해도 숨을 못 쉬어요. 응급실에 몇 번을 갔는지.”");used("x5","이모: “채은이는 어릴 때부터 단 것만.”");used("x8","이모: “채원이는 복숭아 닿으면 숨을 못 쉬어.”");callMenu()}});
+ o.push({t:"전화를 끊는다",f:()=>{F().callEnd=1;say("“정우 씨. 혹시… 채은이가 근처에 있으면, 조심해요.”\n전화가 끊긴다.")}});choose(o)}
+Object.assign(ROOMS,{
+r4a:{name:"채원의 공유 작업실",desc:"창 없는 작은 작업실. 태블릿, 스캐너, 작업용 PC. 먼지가 얇게 앉아 있다.",enter(){const f=F();if(f.tx)return false;f.tx=1;say("작업실 문을 연다. 주머니에서 휴대폰이 울린다.");textIn("어디야? 보고 싶어");return true},spots:[
+{n:"작업 PC",look(){const f=F();if(f.pc)return say("스캔 폴더와 작업 폴더. 마지막 저장은 23일 전.");say("PC 잠금 화면. 비밀번호 4자리. 모니터 옆 포스트잇: “두부가 우리 집에 온 날”.");askCode(4,v=>v==="0314"?true:"비밀번호가 틀렸다.",()=>{f.pc=1;used("vaxn");say("열렸다. 작업 폴더의 마지막 저장이 23일 전이다. 그 뒤로 그림이 한 장도 없다.\n마감을 한 번도 어긴 적 없는 사람이다.\n‘스캔’ 폴더에 오래된 연하장 한 장.\n“채원이, 채은이 모두 건강하길. — 정숙 이모”\n아래에 전화번호가 적혀 있다.");give("card");note("work","작업 PC — 23일 전부터 그림을 한 장도 그리지 않았다");note("cardn","오래된 연하장 — “채원이, 채은이 모두 건강하길” 정숙 이모의 번호")},"비밀번호 4자리")},use:{vax(){say("예방접종 수첩을 펼친다. ‘입양일 3월 14일’.");note("vaxn","두부의 입양일 — 3월 14일")}}},
+{n:"책상",look(){say("연필 스케치가 흩어져 있다. 종이마다 연필 선이 손날에 쓸려 번져 있다. 왼손으로 그리는 사람의 자국이다.")}},
+{n:"전화를 건다",show:()=>has("card")&&!F().call,look(){openCall()}},
+{n:"다시 전화를 건다",show:()=>F().call&&!F().callEnd,look(){callMenu()}},
+{n:"작업실을 나선다",show:()=>F().callEnd,look(){choose([{t:"집으로 돌아간다 (4장 종료)",f:()=>{S.over=4;render()}}])}}]}});
+
+/* ================= 5장 「현상」 ================= */
+CHAP[5]={name:"현상",day:"화요일",room:"r5",text:"화요일. 반차를 냈다.\n채원의 카메라를 들고, 그녀가 늘 필름을 맡기던 동네 사진관으로 간다."};
+const PH=[["A","오후의 골목. 그림자가 길게 늘어지기 시작한다."],["B","빵집 진열대. 벽시계가 9시 40분."],["C","흔들린 사진. 현관 문 앞에 선 사람. 채원과 같은 얼굴. 문 옆 벽시계가 4시 17분."],["D","아침 창틀에서 하품하는 두부. 밥그릇이 방금 채운 듯 가득하다."],["E","북카페 창가. 교환 메모장 위에 놓인 손. 커피잔 옆 영수증에 13:52."],["F","공원 벤치. 그림자가 발밑에 짧게 고여 있다."]];
+const PH_ANS="DBFEAC";
+function openPhotos(){const st={p:[]};openPanel({draw(el){el.innerHTML='<div>23일 전, 채원의 하루. 그녀가 마지막으로 있던 곳을 찾으려면 찍은 순서대로 놓아 보세요.</div><div class="photos">'+PH.map(p=>`<button data-k="${p[0]}" class="${st.p.includes(p[0])?"used":""}"><b>${p[0]}</b><br>${p[1]}</button>`).join("")+'</div><div class="disp" style="font-size:15px;letter-spacing:.2em">'+st.p.join(" → ")+'</div><div class="row"><button class="btn" data-x="r">다시</button><button class="btn" data-x="x">닫기</button></div>';
+ el.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>{const k=b.dataset.k;if(st.p.includes(k))return;st.p.push(k);render();if(st.p.length===6)setTimeout(()=>{S.from=S.log.length;if(st.p.join("")===PH_ANS){PANEL=null;G().K1=1;say("아침 창틀의 두부, 9시 40분 빵집, 정오의 공원, 북카페, 오후의 골목.\n그리고 마지막 컷.\n흔들린 사진 속, 현관 문 앞에 채원과 같은 얼굴이 서 있다. 문 옆 벽시계가 4시 17분.\n현관 거울에 사진을 찍는 사람이 비쳐 있다. 왼손으로 카메라를 든 채원.\n찍은 사람도, 찍힌 사람도, 같은 얼굴이다.\n그날 채원의 하루는 집에서 끝났다. 그 뒤로 필름은 한 장도 없다.");note("K1","K1 마지막 필름 컷 — 23일 전 16:17, 문 앞의 같은 얼굴. 거울 속 채원은 왼손으로 카메라를 들었다");used("x6","필름 속 북카페 사진. 채원은 그날 그 자리를 찍었다");used("x1","거울 속 채원은 왼손으로 카메라를 들고 있다")}else{st.p=[];say("그날 하루가 이어지지 않는다.")}},300)});
+ el.querySelector("[data-x=r]").onclick=()=>{st.p=[];render()};el.querySelector("[data-x=x]").onclick=closePanel}})}
+Object.assign(ROOMS,{
+r5:{name:"동네 사진관",desc:"오래된 간판, 진열장의 증명사진들. 안쪽 암실에서 약품 냄새가 난다.",spots:[
+{n:"사진관 주인",person:1,look(){const f=F();if(!f.dev)return say("“필름 현상이요? 카메라 주세요.”");say("주인이 사진 봉투를 건네다 정우의 얼굴을 다시 본다.\n“아, 채원 씨 남자친구분이구나? 어쩐지 낯이 익더라. 채원 씨 필름 현상하면 절반이 이 얼굴이거든요.”\n주인이 고개를 갸웃한다.\n“근데 이상하네. 지난주에 채원 씨가 와서, 자기 카메라 필름 맡긴 거 없냐고 묻고 갔거든요. 없다니까 한참 서 있다 가더라고.”\n“늘 오던 단골인데, 그날은 나를 처음 보는 사람처럼 쳐다봤어요.”");note("owner","사진관 주인 — 지난주 ‘채원’이 이 카메라 필름을 찾으러 왔다. 단골인데 주인을 처음 보는 사람처럼 봤다")},use:{camera(){const f=F();if(f.give)return say("이미 맡겼다.");f.give=1;say("“한 시간이면 돼요.”")}}},
+{n:"한 시간을 기다린다",show:()=>F().give&&!F().dev,look(){F().dev=1;say("사진관 앞 벤치. 휴대폰이 울린다.");textIn("오늘 저녁 같이 먹을까?",()=>say("한 시간이 지났다. 사진관 주인이 손짓한다."))}},
+{n:"사진 봉투",show:()=>F().dev,look(){if(G().K1)return say("마지막 컷을 다시 본다. 문 앞의 같은 얼굴. 4시 17분.");say("24장. 대부분 평범한 일상이다. 그중 한 날의 사진 6장이 눈에 걸린다. 날짜 표시가 모두 23일 전.");openPhotos()}},
+{n:"사진관을 나선다",show:()=>G().K1,look(){choose([{t:"집으로 돌아간다 (5장 종료)",f:()=>{S.over=5;render()}}])}}]}});
+
+/* ================= 6장 「지하」 ================= */
+CHAP[6]={name:"지하",day:"수요일 밤",room:"r6g",text:"수요일 밤 11시. 그녀의 원룸 건물 앞.\n아까 문자가 왔다. 오늘은 작업실에서 밤을 새운다고.\n23일째 아무도 그림을 그리지 않은 그 작업실에서. 오늘 밤 그녀는 이 건물에 없다."};
+function storageOpen(){askCode(2,v=>{const n=v.padStart(2,"0");if(n==="07")return true;const g=G();g.wrong=g.wrong||{};if(!["03","11","01","02","04","05","06","08","09","10","12"].includes(n))return "그런 번호의 창고는 없다.";if(!g.wrong[n]){g.wrong[n]=1;alertUp(1,"남의 창고("+n+"번)를 기웃거림")}return "박 씨가 "+n+"번 문 아래를 손전등으로 비춰 준다. 환기 틈으로는 먼지 냄새뿐이다. 아무 소리도 없다.\n“남의 창고 기웃거리면 내가 곤란해요. 그 아가씨한테도 한번 물어봐야겠네.”"},()=>{const g=G();g.K2=1;say("07번. 박 씨가 손전등으로 문 아래를 비춰 준다.\n환기 틈에 얼굴을 가까이 댄다.\n로션 냄새. 그 아래 섞인, 다른 냄새.\n문 안쪽에서 아주 약하게, 쿵. 쿵쿵.\n문 아래 철판에, 안쪽에서 긁은 손톱자국이 빽빽하다.");note("K2","K2 창고 07번 — 안에서 같은 리듬의 소리, 문 아래 손톱자국");used("x3","창고 07번 안쪽에서, 같은 리듬으로 쿵. 쿵쿵.")},"창고 번호")}
+function decide6(){const g=G();if(!g.snap){g.snap=null;const sn=JSON.stringify(S);g.snap=sn}choose([
+ {t:"경찰에 신고한다",f:()=>{const g=G(),ok=g.K1&&g.K2&&evid()>=4;if(ok){g.choice="police";say("경찰서. 정우는 사진과 장부, 이모의 이야기를 하나씩 내놓는다.\n담당 형사가 사진 속 두 얼굴을 오래 본다.\n“금요일 밤 9시에 관리인 입회하에 확인하겠습니다. 그 전까지 아무 티도 내지 마세요.”");choose([{t:"돌아간다 (6장 종료)",f:()=>{S.over=6;render()}}])}else{g.choice="weak";say("경찰서. 정우는 이야기를 꺼낸다. 형사가 하품을 참는다.\n“여자친구분이 쌍둥이 동생이라고요? 증거는요? …일단 본인한테 확인해 보죠.”\n형사가 그녀에게 전화를 건다.");choose([{t:"…",f:()=>finish(4)}])}}},
+ {t:"기념일 밤, 내가 직접 연다",f:()=>{G().choice="alone";say("경찰은 믿지 않을 것이다. 금요일 밤, 이사 직전에. 직접 연다.\n정우는 지하 계단을 올라온다. 손이 떨린다.");choose([{t:"돌아간다 (6장 종료)",f:()=>{S.over=6;render()}}])}},
+ {t:"그녀에게 전화해 따진다",f:()=>{G().choice="confront";say("신호가 한 번 가고 바로 받는다.\n“우우? 이 시간에 웬일이야?”\n“…창고 07번. 거기 뭐가 있어?”\n긴 침묵. 그리고 아주 차분한 목소리.\n“무슨 소리야. 내일 얘기하자. 자, 우우.”");choose([{t:"…",f:()=>finish(4)}])}},
+ {t:"착각이라고 덮는다",f:()=>{G().choice="ignore";say("보일러야. 그녀가 그렇게 말했다.\n정우는 지하 계단을 올라오며 생각한다. 사람이 바뀐다는 게 말이 되나. 피곤해서 그래.");choose([{t:"…",f:()=>finish(5)}])}}])}
+Object.assign(ROOMS,{
+r6g:{name:"원룸 건물 · 1층",desc:"센서등이 깜빡이는 복도. 지하 계단 철문, 관리실, 그리고 채원의 원룸 문.",spots:[
+{n:"지하 계단 철문",look(){const f=F();if(f.gate)return go("r6b","철문을 열고 지하로 내려간다. 공기가 차갑고 눅눅하다.");say("‘입주자 외 출입 금지’. 밤에는 입주자 열쇠로만 열린다.");choose([{t:"관리실 박 씨를 깨워 열어 달라고 한다",f:()=>{f.gate=1;alertUp(1,"한밤중에 박 씨를 깨움");say("박 씨가 잠옷 바람으로 나와 문을 열어 준다. “이 시간에 무슨 일로…? 아가씨는 알아요?”")}},{t:"그만둔다",f:()=>say("철문 앞에서 물러선다.")}])},use:{key(){F().gate=1;used("keyn","‘혹시 몰라서’ 맡긴 열쇠 꾸러미에 건물 지하 열쇠가 달려 있다");say("열쇠 꾸러미의 작은 열쇠가 맞는다. 철문이 소리 없이 열린다.")}}},
+{n:"채원의 원룸 문",look(){if(F().inroom)return go("r6r","원룸으로 들어간다.");say("문이 잠겨 있다. 그녀는 오늘 없다.")},use:{key(){F().inroom=1;go("r6r","여분 열쇠로 문을 연다. 불 꺼진 방. 두부가 어둠 속에서 울며 달려 나온다.")}}},
+nav("관리실로","r6o","관리실 문을 두드린다.")]},
+r6o:{name:"관리실",desc:"TV 소리. 벽에 창고 장부와 열쇠함, 개별 전력계 기록표.",spots:[
+{n:"박 씨",person:1,look(){say("“아이고, 또 오셨네? 어제도 오셨잖아요. …아니, 그 아가씨가 오셨나. 둘이 하도 붙어 다녀서.”\n박 씨가 안경을 고쳐 쓴다. “창고 보러 오셨어요? 장부 보세요, 보세요.”")}},
+{n:"창고 장부",look(){say("‘지하 개인 창고 임대 장부’\n23~24일 전 신규 임대 세 건.\n03번 — 이○○ (이삿짐 보관)\n07번 — 한채원 (신분증 사본 첨부)\n11번 — 최○○ (사업장 재고)\n07번 계약자는 채원이다. 서명이 오른쪽으로 기울어 있다.");note("ledger","창고 장부 — 23~24일 전 임대 03·07·11번. 07번 계약자는 ‘한채원’, 서명이 오른쪽으로 기울었다")}},
+{n:"전력계 기록표",look(){say("개별 전력계 월간 사용량.\n03번 0.4kWh / 07번 31.8kWh / 11번 0.0kWh\n창고에서 전기를 쓸 일이 거의 없다. 07번만 전기난로를 켠 것처럼 많다.");note("meter","전력계 — 07번만 사용량이 많다(31.8kWh). 03·11번은 거의 0")}},
+nav("1층 복도로","r6g","복도로 나온다.")]},
+r6r:{name:"채원의 원룸 · 밤",desc:"반쯤 싼 이삿짐 상자들. ‘새 집’이라고 적힌 테이프.",spots:[
+{n:"두부",look(){const f=F();if(f.cat)return say("두부가 정우의 발치를 맴돈다.");f.cat=1;say("두부를 안아 올린다. 두부가 정우의 품에서 현관 쪽, 아래쪽을 보며 운다.\n함께 데려가기로 한다.")}},
+{n:"이삿짐 상자",look(){say("‘새 집 — 금요일’. 그녀의 옷과 정우가 준 선물들만 담겨 있다. 채원의 그림 도구는 하나도 없다.")}},
+nav("1층 복도로","r6g","방을 나온다.")]},
+r6b:{name:"지하 창고 복도",desc:"번호가 붙은 철문 열두 개가 양쪽으로 늘어서 있다. 보일러가 웅웅거린다.",spots:[
+{n:"두부",show:()=>F().cat,look(){say("두부가 복도에 내려서서 코를 킁킁거린다. 아직 어디로도 가지 않는다.")},use:{churu(){used("x2","츄르를 먹은 두부가 울면서 07번 문 앞에 멈춰 선다");say("츄르 냄새에 두부가 따라 걷다가, 07번 문 앞에서 멈춘다. 그리고 문을 긁으며 운다. 그녀에게 하악질하던 그 목소리가 아니다. 반가워서 우는 소리다.");note("dubu7","두부 — 07번 문 앞에서 멈춰 울었다")}}},
+{n:"문에 귀를 댄다",look(){choose([["03번",()=>say("03번. 아무 소리도 없다.")],["07번",()=>{say("07번. …숨을 참는다.\n아주 약하게, 쿵. 쿵쿵.");note("sound7","07번 — 문 안쪽에서 약한 소리")}],["11번",()=>say("11번. 냉장 쇼케이스 모터 소리뿐이다.")]].map(([t,f])=>({t,f})))}},
+{n:"박 씨와 창고 문을 살핀다",show:()=>!G().K2,look(){say("박 씨가 손전등을 들고 내려와 있다. “문은 못 열어 줘요. 어느 칸이든 계약자 없이는 안 돼. 밖에서 보는 것만, 하나만 봐요.”");storageOpen()}},
+{n:"어떻게 할까",show:()=>G().K2,look(){decide6()}},
+nav("1층으로","r6g","계단을 올라온다.")]}});
+
+/* ================= 7장 「기념일 전야」 ================= */
+CHAP[7]={name:"기념일 전야",day:"목요일 밤",room:"r7",text:"목요일 밤. 내일이 기념일이다.\n‘이제 내 생일이에요.’ 그 휴대폰의 집주인에게 관리비 고지서를 핑계로 전화를 걸었다. 새 집이 아니었다.\n옆 건물 3층 302호. 그녀가 원래 살던 방 앞에 선다."};
+const WALL=["1년 전 봄. 북카페 창가에서 책을 읽는 정우. 아주 멀리서 찍었다.","여름. 국밥집 앞에서 채원과 웃는 정우. 채원의 얼굴만 펜으로 지워져 있다.","가을. 두부를 안고 동물병원을 나서는 정우.","겨울. 정우의 출판사 건물 앞. 퇴근 시간.","3주 전. 채원의 원룸 창문. 커튼 너머의 정우.","오늘 아침. 자고 있는 정우. 이 방이 아니라, 그녀의 원룸 침대 위에서."];
+function wallLook(){const f=F();f.w=(f.w||0);if(f.w>=WALL.length)return say("사진은 끝까지 다 봤다. 마지막 장의 날짜가 오늘이다.");say(WALL[f.w]);f.w++;if(f.w===WALL.length)note("wall","채은의 방 벽 — 정우의 1년이 사진으로. 마지막은 오늘 아침 자고 있는 정우");tick7()}
+function tick7(){const f=F();f.k=(f.k||0)+1;if(S.alert>=3&&f.k===4&&!f.warn){f.warn=1;msg("어디야? 나 지금 집 앞인데");say("…집 앞. 어느 집 앞.\n빨리 나가야 한다.")}}
+Object.assign(ROOMS,{
+r7:{name:"옆 건물 3층 · 302호 앞",desc:"도어락이 달린 철문. 문틈으로 냉기가 샌다.",spots:[
+{n:"도어락",look(){if(F().open)return go("r7i","문을 연다.");say("숫자 4자리 도어락.");askCode(4,v=>{if(v==="0928")return true;if(v==="0927")return "‘삐빅.’ 열리지 않는다. 언니의 생일이다. 이 방의 주인은 누구일까.";return "‘삐빅.’ 열리지 않는다."},()=>{F().open=1;used("phone2","“이제 내 생일이에요” — 이 방의 주인, 채은의 생일 9월 28일");used("bday");go("r7i","‘띠리릭.’ 문이 열린다.\n불을 켠다. 숨이 멎는다.")},"비밀번호 4자리")}}]},
+r7i:{name:"302호 · 채은의 방",desc:"벽이 보이지 않는다. 벽 전체를 사진이 덮고 있다.",enter(){const f=F();if(f.in)return false;f.in=1;say("벽이 보이지 않는다. 사진이다. 전부, 정우다.");textIn("뭐 해?",()=>{});return true},spots:[
+{n:"벽의 사진",look(){wallLook()}},
+{n:"책상 위 종이",look(){say("A4 수십 장에 같은 서명. ‘한채원’. 처음 장들은 오른쪽으로 기울어 있다. 뒤로 갈수록 왼쪽으로 눕히려 애쓴다. 마지막 장에서도 끝내 기울어 있다.");note("sign","채은의 서명 연습 — 언니의 왼쪽 기울기를 수백 번 따라 썼다");tick7()}},
+{n:"연습 노트",look(){say("말투 연습 노트. ‘언니는 “응응” 두 번. 웃을 때 코 찡긋. 블랙커피(쓰다, 참기). 왼손으로 먹을 것. 안 되면 오른손으로 고치는 중이라고 할 것.’\n맨 아래 줄.\n‘우우? 우우? — 언니가 부르는 별명. 언제, 어떻게 부르는지 모름.’");used("x4","채은의 노트: ‘우우? 언제, 어떻게 부르는지 모름.’");tick7()}},
+{n:"달력",look(){say("금요일 칸에 빨간 글씨.\n‘23:00 이사 트럭 — 창고 정리 후 새 집’\n‘두 번째 봄.’");note("truck","채은의 달력 — 금요일 23시 이사 트럭, ‘창고 정리 후 새 집’");tick7()}},
+{n:"침대 밑 상자",show:()=>(F().w||0)>=WALL.length,look(){if(G().K3)return say("노트를 다시 펼칠 수가 없다.");G().K3=1;say("침대 밑 신발 상자에 작은 노트.\n‘언니 식사량’\nD+1 도시락 하나, 물 2병 / D+7 도시락 반 / D+15 빵 한 개 / D+22 물만.\n그 아래, 다른 펜으로.\n‘언니는 늘 먼저 가졌다. 이번엔 내 차례다. 두 번째 봄은 내 거야.’");note("K3","K3 채은의 노트 — ‘언니 식사량’. D+22 물만. ‘두 번째 봄은 내 거야’");tick7()}},
+{n:"방을 나선다",look(){choose([{t:"문을 닫고 나간다 (7장 종료)",f:()=>{S.over=7;render()}},{t:"조금 더 본다",f:()=>say("시계를 본다. 시간이 없다.")}])}}]}});
+
+/* ================= 8장 「두 번째 봄」 ================= */
+CHAP[8]={name:"두 번째 봄",day:"금요일 밤 · 기념일",room:"r8",text:"금요일. 기념일 밤.\n그녀가 보낸 마지막 문자: “이사 트럭 11시에 와. 우리 새 집에서 만나 💕”"};
+const twin=side=>side==="L";/* 왼쪽이 채은, 오른쪽이 채원 */
+const pres8=side=>({
+ x1(){say(side==="L"?"“손 줘 봐.” 왼쪽 사람이 오른손을 내밀다가, 멈칫하고 왼손으로 바꾼다.":"“손 줘 봐.” 오른쪽 사람이 떨리는 왼손을 내민다. 앙상하다.");F().t1=1},
+ x4(){say(side==="L"?"“…우우?” 왼쪽 사람이 한 박자 늦게 따라 부른다.":"“우우…” 오른쪽 사람이 갈라진 목소리로 먼저 부른다. 정우가 부르기도 전에.");F().t4=1},
+ x8(){say(side==="L"?"“복숭아 기억나?” 왼쪽 사람이 웃는다. “좋아하잖아, 우리.”":"“복숭아 기억나?” 오른쪽 사람이 고개를 젓는다. “…치워. 숨 막혀.”");F().t8=1}});
+function finalPick(){choose([{t:"왼쪽 사람의 손을 잡는다",f:()=>finish(3)},{t:"오른쪽 사람의 손을 잡는다",f:()=>finish(2)}])}
+Object.assign(ROOMS,{
+r8:{name:"원룸 건물 · 지하",desc:"기념일 밤. 지하 복도 끝 07번.",enter(){const g=G(),f=F();if(f.e)return false;f.e=1;
+ if(g.choice==="police"&&S.alert<=2){S.room="r8p";say("밤 9시. 형사 두 명과 박 씨가 지하 복도에 선다. 위층에서는 그녀가 이사 트럭을 기다리고 있다.\n박 씨가 07번에 마스터키를 꽂는다.");return true}
+ S.room="r8d";say((g.choice==="police"?"밤 8시 40분. 경찰이 오기 20분 전. 그런데 07번 문이 이미 열려 있다. 그녀가 먼저 와 있었다.\n":"밤 10시. 여분 열쇠로 지하 철문을 연다. 07번 문이 열려 있다. 안은 어둡다.\n")+"전구가 나가 있다. 어둠 속에서 두 사람의 숨소리.\n“정우야. 나야.”\n“정우야, 나야.”\n같은 목소리. 하나는 왼쪽에서, 하나는 오른쪽에서.");return true},spots:[]},
+r8p:{name:"지하 창고 07번 앞",desc:"형사 두 명과 박 씨. 문이 열리는 소리.",spots:[
+{n:"문이 열린다",look(){finish(G().K3&&evid()>=7?6:1)}}]},
+r8d:{name:"창고 07번 · 어둠",desc:"어둠 속에 두 사람. 같은 키, 같은 머리, 같은 목소리.",spots:[
+{n:"왼쪽 사람",person:1,look(){say("“정우야, 나야. 나 무서웠어. 걔가 나를 여기 가뒀어.” 왼쪽 사람이 울먹인다. 목소리가 맑다.")},pres:pres8("L"),use:{cleanser(){F().tc=1;say("화장솜으로 왼쪽 사람의 손목을 문지른다. 흉터가 번진다. 손가락에 살색 화장이 묻어난다.")},camera(){flash()}}},
+{n:"오른쪽 사람",person:1,look(){say("“정우야… 나야.” 오른쪽 사람의 목소리가 갈라져 있다. 바닥에 주저앉은 채다.")},pres:pres8("R"),use:{cleanser(){F().tc=1;say("화장솜으로 오른쪽 사람의 손목을 문지른다. 흉터가 그대로다. 살갗에 깊이 남은, 오래된 흉터.")},camera(){flash()}}},
+{n:"카메라 플래시",show:()=>has("camera")&&!F().fl,look(){flash()}},
+{n:"손을 잡는다",look(){finalPick()}}]}});
+function flash(){const f=F();if(f.fl)return say("필름도 배터리도 다 썼다.");f.fl=1;say("플래시를 터뜨린다. 한순간 하얗게.\n같은 얼굴 둘. 왼쪽은 눈을 감지 않았다. 오른쪽은 빛에 움찔하며 얼굴을 가린다. 그 손목이 앙상하다.\n다시 어둠.")}
+
+/* ---------- 엔딩 ---------- */
+function finish(n){G().end=n;markEnd(n);S.over="E"+n;render()}
+const EN=(tag,lines,qs,btn)=>`<p><span class="tag">${tag}</span></p>${lines.map(x=>`<p>${x}</p>`).join("")}${qs.length?`<p class="q">${qs.map(x=>"· "+x).join("<br>")}</p>`:""}<div class="row">${btn}<button class="btn" data-act="back">돌아가기</button></div>`;
+const NEXT=n=>`<button class="btn" data-act="c${n}">${n}장 시작</button>`;
+const OK=b=>b?'<span class="okc">회수</span>':'<span class="noc">놓침</span>';
+const XN={x1:"오른손 숟가락",x2:"두부의 하악질",x3:"지하의 소리",x4:"‘우우’에 늦은 반응",x5:"달게 탄 커피",x6:"첫 데이트를 기억 못 함",x7:"사라지는 흉터",x8:"복숭아"};
+const XW={x1:"1장 아침 → 2장 메모장 글씨, 4장 이모, 5장 사진",x2:"1장 두부 → 6장 원룸에서 두부를 데려와 지하에서 츄르",x3:"1장 아침 → 6장 박 씨와 07번 문을 살핌",x4:"2장 국밥집 → 7장 채은의 연습 노트",x5:"2장 북카페 → 4장 이모에게 입맛을 물음",x6:"2장 북카페 → 5장 필름 순서",x7:"3장 밤과 아침 → 4장 이모에게 11년 전 일을 물음",x8:"1장 커플 앱 → 4장 이모에게 입맛을 물음"};
+function review(){const g=G(),lv=S.alert<=1?"낮음":S.alert<=2?"보통":S.alert<=3?"높음":"매우 높음";
+ const rows=Object.keys(XN).map(k=>{const n=S.notes.find(x=>x.id===k);const u=n&&n.used;return `<tr><td>${k} ${XN[k]}</td><td>${OK(u)}</td><td class="mut">${u?"":XW[k]}</td></tr>`}).join("");
+ const K=[["K1 마지막 필름 컷",g.K1,"5장 사진관. 필름 순서를 맞춘다"],["K2 창고 07번",g.K2,"6장 장부·전력계·두부를 교차해 07번을 고른다"],["K3 채은의 노트",g.K3,"7장 벽 사진을 끝까지 본 뒤 침대 밑"]].map(r=>`<tr><td>${r[0]}</td><td>${r[1]?'<span class="okc">확보</span>':'<span class="noc">놓침</span>'}</td><td class="mut">${r[1]?"":r[2]}</td></tr>`).join("");
+ const aw=(g.aw||[]).filter(Boolean);
+ return `<table class="res">${rows}${K}<tr><td>증거 점수</td><td>${evid()}/8</td><td class="mut">회수까지 된 어긋남의 수</td></tr><tr><td>그녀의 경계</td><td>${lv}</td><td class="mut">${aw.length?aw.join(", "):"떠보지 않았다"}</td></tr></table>`}
+const SNAP='<button class="btn" data-act="snap">6장의 선택으로 돌아가기</button>';
+function endingHTML(n){const g=G();let L=[];
+ if(n===1)L=["밤 9시 4분. 07번 문이 열렸어.","로션 냄새, 그리고 그 아래의 냄새. 전기난로 옆에 누군가 웅크리고 있었어. 머리카락이 엉겨 붙었고, 손목이 나뭇가지처럼 가늘었어.","그 사람이 고개를 들어 나를 봤어. 한참 뒤에, 아주 작게.","“…우우.”","한 박자도 늦지 않았어.","위층에서 이사 트럭을 기다리던 그녀는, 형사를 보고도 웃었대. 수갑을 찬 채로 “우우, 기념일 축하해” 하고.","봄이 왔어. 늦게, 한 번 더."];
+ if(n===6)L=["구출된 지 사흘째, 병실.","채원이 링거를 꽂은 손으로 내 손가락을 붙잡았어. “쌍둥이 얘기, 숨겨서 미안해.”","“부끄러워서 그런 게 아니었어. 걔가 알면, 우우를 가지려고 할 테니까. 열여덟 살 때처럼.”","그래서 가족이 없다고 했대. 나를 지키려고.","한 달 뒤, 구치소 면회실. 유리창 너머의 같은 얼굴이 나를 보고 웃었어.","“그래도 3주는 내 거였어.”","나는 아무 대답도 하지 않았어. 두부가 그 얼굴을 보면 또 하악질을 할 거라고만 생각했어."];
+ if(n===2)L=["“오른쪽.”","오른쪽 사람의 손을 잡아 일으키는 순간, 왼쪽에서 무언가가 번쩍였어. 팔에 뜨거운 게 스쳤어.","피가 흘러도 손을 놓지 않았어.","왼쪽 사람은 어둠 속으로 달아났어. 계단을 오르는 발소리, 그리고 이사 트럭의 시동 소리.","채원은 살았어. 내 팔에는 흉터가 남았어. 채원과 같은 자리에.","채은은 아직 찾지 못했대. 가끔 길에서 같은 얼굴을 보면, 나는 먼저 손을 봐."];
+ if(n===3)L=["“왼쪽.”","왼쪽 사람의 손을 잡았어. 따뜻했어. 그 사람이 내 품에 안겼어.","그 순간, 오른쪽 사람이 바닥에서 작게 신음했어. 그제야 알았어. 오른쪽 사람의 손목이 왜 그렇게 가늘었는지.","품 안의 사람이 내 귀에 대고 속삭였어. 등 뒤로, 차가운 게 들어왔어.","어둠이 내려앉았어.","“이제 우리뿐이야, 우우.”"];
+ if(n===4)L=["다음 날 아침, 박 씨가 경찰을 불러 07번을 열었어.","비어 있었어. 바닥에 긁힌 자국과 빈 물병 몇 개, 로션 냄새만.","그녀도 사라졌어. 원룸은 하룻밤 사이에 비었고, 전화번호는 없는 번호가 됐어.","반년 뒤, 낯선 도시의 소인이 찍힌 엽서 한 장이 왔어.","‘잘 지내지? 보고 싶어. 💕 — 채원’","글씨가, 오른쪽으로 기울어 있었어."];
+ if(n===5)L=["기념일 밤, 우리는 새 집으로 이사했어.","그녀가 내 손을 잡고 현관 비밀번호를 눌렀어. 0928.","새 집은 따뜻해. 그녀는 매일 아침 계란말이를 하고, 나를 우우라고 불러. 이제는 한 박자도 늦지 않아.","두부는 이사 오고 나서 밥을 잘 안 먹어. 가끔 현관에 앉아 아래를 보며 울어.","예전 집 지하에서 나던 소리는, 이제 더 이상 들리지 않는대."];
+ return `<p><span class="tag">ENDING ${n} — ${ENDINGS[n-1]}</span></p>${L.map(x=>`<p>${x}</p>`).join("")}<div class="lbl">결산</div>${review()}<div class="row"><button class="btn" data-act="gal">엔딩 도감</button>${g.snap?SNAP:""}<button class="btn" data-act="again">처음부터</button></div>`}
+function endHTML(k){const g=S?G():{};
+ if(k===1)return EN("1장 종료",["오늘따라 더 다정했어. 계란말이도, 기념일 얘기도.","그런데 두부는 왜 그랬을까?"],["커플 앱 비밀번호는 왜 몰랐을까?","바닥 아래의 소리는 정말 보일러일까?"],NEXT(2));
+ if(k===2)return EN("2장 종료",["우리가 처음 만난 자리를, 너무 설레서 기억이 안 난대.","1년 전 메모의 글씨는 왼쪽으로 기울어 있었어. 오늘 그녀의 서명은 오른쪽으로."],["사람의 글씨가 1년 만에 반대로 기울 수 있을까?"],NEXT(3));
+ if(k===3)return EN("3장 종료",["자기 이름을 왜 그렇게 연습하듯 불렀을까?"],["어젯밤의 흉터는 어디로 갔다가 돌아왔을까?","‘내 생일’로 여는 방은 어디에 있을까?"],NEXT(4));
+ if(k===4)return EN("4장 종료",["가족이 없다던 사람에게, 같은 얼굴의 동생이 있었어.","왼손잡이 언니와, 오른손잡이 동생."],["지금 내 옆에 있는 사람은 누구일까?","그럼 채원은, 어디에 있을까?"],NEXT(5));
+ if(k===5)return EN("5장 종료",["사진을 찍은 사람은 누구였을까. 찍힌 사람은 누구였을까."],[],NEXT(6));
+ if(k===6)return EN("6장 종료",[g.choice==="police"?"형사는 금요일 밤 9시라고 했어. 그때까지 아무 티도 내지 말라고.":"금요일 밤. 이사 트럭이 오기 전에, 내가 연다.","오늘 밤, 07번 안의 사람은 무엇을 먹었을까."],[],NEXT(7));
+ if(k===7)return EN("7장 종료",["벽 하나가 전부 나였어. 1년치.","마지막 사진은 오늘 아침이었어. 나는 그 사진이 찍히는 줄도 모르고 자고 있었어."],["‘두 번째 봄’은 누구의 봄일까?"],NEXT(8));
+ if(typeof k==="string"&&k[0]==="E")return endingHTML(+k.slice(1));
+ if(k==="gal"){const got=gotEnd();return `<p><span class="tag">엔딩 도감</span></p><p class="mut">엔딩 6종 (숨은 엔딩 1개 포함). 본 엔딩만 이름이 공개됩니다.</p><div class="slots">${ENDINGS.map((n,i)=>`<div class="${got.includes(i+1)?"got":""}">엔딩 ${i+1}<br><b>${got.includes(i+1)?n:"???"}</b></div>`).join("")}</div><div class="row"><button class="btn" data-act="${S&&S.lastOver?"ret":"close"}">${S&&S.lastOver?"돌아가기":"닫기"}</button></div>`}
+ return ""}
+
+/* ---------- 3단계 힌트 ---------- */
+function goal(){const f=F(),g=G(),c=S.ch;
+ if(c===1){if(!f.t1)return["a",["채원에게 말을 걸어 보세요.","방의 ‘채원’을 누르세요.","‘채원’을 세 번 누르면 아침과 기념일 이야기가 이어집니다."]];
+  if(!f.plan)return["b",["채원과 아침을 먹고 기념일 이야기를 들어 보세요.","‘채원’을 계속 누르세요.","‘채원’을 누르세요."]];
+  if(!f.app)return["c",["커플 앱에 기념일 일정을 넣어야 합니다.","힌트는 ‘처음 같이 본 영화의 상영관과 좌석’. 정우의 지갑에 무언가 있습니다.","지갑의 영화 티켓 ‘7관 F12’ → 0712"]];
+  if(!has("vax"))return["d",["집을 나서기 전에 둘러볼 곳이 남아 있습니다.","현관 신발장 서랍.","현관 → 신발장 서랍"]];
+  return["e",["오늘은 이만 집에 갑니다.","현관의 ‘인사하고 나선다’.","현관 → 인사하고 나선다"]]}
+ if(c===2){if(!f.eat)return["a",["국밥집에서 채원과 이야기하세요.","‘채원’을 누르세요.","‘채원’"]];
+  if(!has("key"))return["b",["채원이 자리를 비운 사이, 누군가 정우에게 할 말이 있어 보입니다.","채원이 화장실에 간 뒤 사장님에게 말을 거세요.","‘채원’ 한 번 더 → ‘사장님’"]];
+  if(!g.memoR)return["c",["북카페의 교환 메모장 표지에 책장 위치가 적혀 있습니다.","분류번호 813.6 칸, 위에서 세 번째 단.","책장 → 813.6 → 3단"]];
+  if(!F().sig)return["d",["1년 전 메모의 글씨와 비교할 것이 있습니다.","그녀가 커피를 산 뒤 남긴 영수증.","‘채원’에게 말을 걸어 커피 주문 → ‘영수증’"]];
+  return["e",["다음 장으로 넘어가세요.","‘집으로 돌아간다’","‘집으로 돌아간다’"]]}
+ if(c===3){if(!f.sh)return["a",["채원과 밤을 보내세요.","‘채원’을 누르세요.","‘채원’ 두 번"]];
+  if(f.sh&&!f.out&&!f.ph2)return["b",["그녀가 씻는 동안 가방이 열려 있습니다.","가방 속 검은 휴대폰. 화면을 그냥 보면 아무것도 보이지 않습니다. 빛을 비스듬히 비춰 보세요.","휴대폰 라이트를 비춘 뒤 가장 진한 자국에서 시작: 1→2→3→6→9"]];
+  if(!f.dawn)return["c",["밤이 깊었습니다.","‘잠든다’","‘잠든다’"]];
+  return["d",["아침을 맞으세요.","‘아침이 된다’","‘아침이 된다’"]]}
+ if(c===4){if(!f.pc)return["a",["채원의 작업 PC를 열어야 합니다.","포스트잇 ‘두부가 우리 집에 온 날’. 1장에서 챙긴 수첩이 있다면 가방에서 확인하세요.","0314"]];
+  if(!f.call)return["b",["작업 PC에서 찾은 연하장에 연락처가 있습니다.","‘전화를 건다’","‘전화를 건다’"]];
+  if(!f.callEnd)return["c",["이모에게 물어볼 수 있는 것은 모두 물어보세요.","네 가지 질문이 있습니다.","네 가지를 모두 묻고 전화를 끊으세요."]];
+  return["d",["다음 장으로.","‘작업실을 나선다’","‘작업실을 나선다’"]]}
+ if(c===5){if(!f.give)return["a",["채원의 카메라를 현상하세요.","가방의 필름 카메라를 사진관 주인에게 쓰세요.","필름 카메라 → 사진관 주인"]];
+  if(!f.dev)return["b",["현상이 끝날 때까지 기다리세요.","‘한 시간을 기다린다’","‘한 시간을 기다린다’"]];
+  if(!g.K1)return["c",["채원의 마지막 하루를 찍은 순서대로 놓으세요.","사진마다 시간 단서가 있습니다. 가득 찬 밥그릇, 벽시계, 그림자 길이, 영수증 시각.","D → B → F → E → A → C"]];
+  return["d",["다음 장으로.","‘사진관을 나선다’","‘사진관을 나선다’"]]}
+ if(c===6){if(!g.K2){if(S.room==="r6g"&&!F().gate)return["a",["지하 창고로 가야 합니다.","밤에는 입주자 열쇠가 필요합니다. 2장에서 받은 것이 있나요?","여분 열쇠 → 지하 계단 철문 (없으면 박 씨를 깨워야 합니다)"]];
+   return["b",["어느 창고인지 특정해야 합니다. 엉뚱한 창고를 기웃거리면 박 씨가 그녀에게 말합니다.","관리실의 장부와 전력계, 두부의 반응, 문 너머 소리. 두 가지만 맞아도 충분합니다.","07"]]}
+  return["c",["이제 어떻게 할지 정해야 합니다.","증거가 충분하고 그녀가 눈치채지 않았다면 신고가 가장 안전합니다. 확신이 없으면 직접 열 수도 있습니다.","신고 조건: 마지막 필름 컷 + 07번 + 회수된 단서 4개 이상"]]}
+ if(c===7){if(!F().open)return["a",["‘이제 내 생일이에요.’ 이 휴대폰과 이 방의 주인은 누구일까요?","쌍둥이지만 동생은 자정을 넘겨 태어났습니다. 4장 이모의 이야기.","0928"]];
+  if(!g.K3&&(F().w||0)<WALL.length)return["b",["이 방의 모든 것을 보세요. 벽의 사진은 여러 장입니다.","‘벽의 사진’을 끝까지 넘기면 새로운 것이 보입니다.","벽의 사진 6번 → 침대 밑 상자"]];
+  return["c",["떠날 시간입니다.","‘방을 나선다’","‘방을 나선다’"]]}
+ if(c===8){if(S.room==="r8p")return["a",["문이 열립니다.","‘문이 열린다’","‘문이 열린다’"]];
+  return["b",["둘 중 진짜를 가려내야 합니다.","단서 노트의 손잡이·별명·복숭아 단서를 두 사람에게 제시하거나, 클렌징 워터를 써 보세요.","진짜는 오른쪽 사람입니다."]]}
+ return["x",["","",""]]}
+function hint(){const g=goal();if(S.hk!==g[0]){S.hk=g[0];S.hl=0}const lv=Math.min(S.hl,2);S.hl=lv+1;S.from=S.log.length;sys("힌트 "+(lv+1)+"/3 — "+g[1][lv]);render()}
+
+/* ---------- 장면 이미지 (이미지가 준비되면 채운다) ---------- */
+const SCENE={};
+function sceneImg(){const k=SCENE[S.room],im=$("scene"),bg=$("bg");if(!k){im.hidden=true;bg.style.opacity=0;return}const u=k+".webp";if(im.dataset.k!==k){im.dataset.k=k;im.src=u;bg.style.backgroundImage='url("'+u+'")'}im.hidden=false;bg.style.opacity=1}
+
+/* ---------- 렌더링 ---------- */
+const THEME=c=>(S.over==="E6"||S.over==="E1")?"":c<=3?"":c===4?"t2":c===5?"t3":"t4";
+function render(){if(!S)return;const R=ROOMS[S.room];sceneImg();
+ ["t2","t3","t4"].forEach(t=>document.body.classList.toggle(t,THEME(S.ch)===t));
+ $("htitle").textContent="두 번째 봄 — "+S.ch+"장 「"+CHAP[S.ch].name+"」";
+ $("hsub").textContent=CHAP[S.ch].day+(S.time?" · "+S.time:"");
+ const g=goal();$("hintb").textContent=S.hk===g[0]&&S.hl?"힌트 ("+Math.min(S.hl+1,3)+"/3)":"힌트";
+ $("place").textContent=R.name;$("desc").textContent=R.desc;
+ const lg=$("log");lg.innerHTML="";S.log.forEach((t,i)=>{const p=document.createElement("p");if(i>=S.from)p.classList.add("new");
+  if(t[0]==="§"){p.classList.add("sys");p.textContent="▸ "+t.slice(1)}
+  else if(t[0]==="✉"){p.className="msg"+(S.ch>=6?" cold":"");p.textContent=t.slice(1)}
+  else if(t[0]==="°"){p.classList.add("faint");p.textContent=t.slice(1)}
+  else p.textContent=t;lg.appendChild(p)});lg.scrollTop=lg.scrollHeight;
+ const sp=$("spots"),mv=$("moves");sp.innerHTML="";mv.innerHTML="";R.spots.filter(h=>!h.show||h.show()).forEach(h=>{const b=document.createElement("button");b.textContent=h.n;b.onclick=()=>click(h);(h.nav?mv:sp).appendChild(b)});
+ $("mw").style.display=mv.children.length?"":"none";$("acts").querySelector(".lbl").style.display=sp.children.length?"":"none";
+ const iv=$("inv");iv.innerHTML="";if(!S.inv.length)iv.innerHTML='<span class="mut">비어 있음</span>';S.inv.forEach(id=>{const b=document.createElement("button");b.className="chip"+(S.sel===id?" sel":"");b.textContent=iname(id);b.onclick=()=>pick(id);iv.appendChild(b)});
+ const nl=$("notes");nl.innerHTML="";S.notes.forEach(n=>{const li=document.createElement("li"),b=document.createElement("button");b.className=S.sel==="n:"+n.id?"sel":"";b.textContent=n.t;if(n.used){const s=document.createElement("span");s.className="used";s.textContent="회수됨";b.appendChild(s);if(n.then){const t=document.createElement("span");t.className="then";t.textContent="→ "+n.then;b.appendChild(t)}}b.onclick=()=>pickN(n.id);li.appendChild(b);nl.appendChild(li)});$("nc").textContent="("+S.notes.length+")";
+ const sb=$("selbar");if(S.sel){const isN=S.sel.startsWith("n:"),nm=isN?"단서: "+S.notes.find(n=>"n:"+n.id===S.sel).t.split(" — ")[0]:iname(S.sel);sb.textContent="선택 중 — "+nm+" · "+(isN?"제시할 인물을 누르세요":"사용할 곳을 누르세요");sb.classList.add("on")}else sb.classList.remove("on");
+ const cp=$("codep");cp.classList.toggle("on",!!CODE);
+ if(CODE){$("codeh").textContent=CODE.h||"";const bx=$("codebox");if(!$("codein")){bx.innerHTML='<input id="codein" autocomplete="off" inputmode="numeric"><button class="btn" id="codeb">입력</button> <button class="btn" id="codex">닫기</button>';$("codeb").onclick=codeSubmit;$("codein").onkeydown=e=>{if(e.key==="Enter")codeSubmit()};$("codex").onclick=()=>{CODE=null;render()}}$("codein").maxLength=CODE.len}else $("codebox").innerHTML="";
+ const op=$("ordp");op.classList.toggle("on",!!PANEL);if(PANEL)PANEL.draw(op);else op.innerHTML="";
+ $("acts").style.display=CH?"none":"";const ch=$("chp");ch.innerHTML="";ch.classList.toggle("on",!!CH);if(CH)CH.forEach(o=>{const b=document.createElement("button");b.className="btn";b.textContent=o.t;b.onclick=()=>{S.from=S.log.length;CH=null;o.f()};ch.appendChild(b)});
+ $("endv").classList.toggle("on",!!S.over);if(S.over)$("endc").innerHTML=endHTML(S.over);
+ save()}
+function click(h){S.from=S.log.length;const s=S.sel;S.sel=null;CODE=null;PANEL=null;
+ if(s&&!h.nav){if(s.startsWith("n:")){const id=s.slice(2);if(h.pres&&h.pres[id])return h.pres[id]();return say(h.person?"그 이야기를 꺼내 봤지만 별 반응이 없다.":"단서는 사람에게 제시할 수 있다.")}const u=h.use&&h.use[s];if(u)return u();return say("“"+iname(s)+"”은(는) 여기에 쓸 수 없다.")}
+ h.look()}
+function pick(id){S.from=S.log.length;S.sel=S.sel===id?null:id;if(S.sel)say("“"+iname(id)+"” — "+idesc(id));else render()}
+function pickN(id){S.from=S.log.length;S.sel=S.sel==="n:"+id?null:"n:"+id;render()}
+
+/* ---------- 챕터 시작 ---------- */
+function showCard(n,after){const c=CHAP[n];$("cardtag").textContent="CHAPTER "+String(n).padStart(2,"0");$("cardname").textContent=c.name;$("cardslp").textContent=c.day;$("card").classList.add("on");$("card").onclick=()=>{$("card").classList.remove("on");after()}}
+function startCh(n){const c=CHAP[n];S.ch=n;S.over=0;S.room=c.room;S.f={};S.sel=null;CODE=null;PANEL=null;CH=null;S.log=[];S.from=0;S.time="";S.hk="";S.hl=0;
+ render();showCard(n,()=>{say(c.text);const R=ROOMS[c.room];if(R.enter)R.enter()})}
+
+/* ---------- 시작 ---------- */
+function begin(s){S=s;CODE=null;PANEL=null;CH=null;$("title").classList.remove("on");if(!S.log.length&&S.ch===1&&!S.f.t1){startCh(1)}else render()}
+$("start").onclick=()=>begin(fresh());
+$("cont").onclick=()=>{const l=load();if(l)begin(l)};
+$("gal").onclick=()=>{$("title").classList.remove("on");$("endv").classList.add("on");$("endc").innerHTML=endHTML("gal")};
+$("reset").onclick=()=>{CH=[{t:"처음부터 다시 시작한다",f:()=>begin(fresh())},{t:"취소",f:()=>render()}];render()};
+$("hintb").onclick=()=>{if(S)hint()};
+$("endc").onclick=e=>{const a=e.target.dataset&&e.target.dataset.act;if(!a)return;
+ if(/^c\d$/.test(a)){S.over=0;startCh(+a[1])}
+ else if(a==="back"){S.over=0;render()}
+ else if(a==="gal"){if(S&&S.over){S.lastOver=S.over;S.over="gal";render()}else $("endc").innerHTML=endHTML("gal")}
+ else if(a==="ret"){S.over=S.lastOver;S.lastOver=null;render()}
+ else if(a==="close"){$("endv").classList.remove("on");$("title").classList.add("on");showReplyStats()}
+ else if(a==="snap"){const sn=G().snap;if(sn){const s=JSON.parse(sn);s.g.snap=sn;begin(s)}}
+ else if(a==="again")begin(fresh())};
+if(load())$("cont").style.display="";
+showReplyStats();
+
+</script></body></html>
